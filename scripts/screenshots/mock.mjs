@@ -45,4 +45,3 @@ export const setup = (s) => {
   const areas = Object.fromEntries(Object.entries(AREAS).map(([area_id, name]) => [area_id, { area_id, name }]));
   return { hass: { states, entities, devices, areas, language: "en", locale: { language: "en" } }, config: { blink: false, ...s.config }, open: s.open };
 };
-

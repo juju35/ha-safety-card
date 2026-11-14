@@ -212,3 +212,50 @@ test("whole home: a state change keeps the list of detectors, a new state still 
   assert.equal(card._items.length, before);
   assert.equal(card._items.find((i) => i.id === first).level, "alert");
 });
+
+test("whole home and overview: a detector whose state arrives late still shows", () => {
+  const h = makeHass();
+  const late = h.states["binary_sensor.hall_co"];
+  const early = { ...h, states: { ...h.states } };
+  delete early.states["binary_sensor.hall_co"];
+  for (const tag of ["safety-card", "safety-overview-card"]) {
+    const card = make(tag, {}, early);
+    const count = () => (tag === "safety-card" ? card._items.length : card._all.flatMap((x) => x.dets).length);
+    const before = count();
+    card.hass = { ...early, states: { ...early.states, "binary_sensor.hall_co": late } };
+    assert.equal(count(), before + 1, tag);
+  }
+});
+
+test("overview: a second active alarm of a combined detector redraws the header", () => {
+  const h = makeHass();
+  const card = make("safety-overview-card", {}, h);
+  const on = (states, id) => ({ ...states, [id]: { ...states[id], state: "on" } });
+  const gas = on(h.states, "binary_sensor.kitchen_gas");
+  card.hass = { ...h, states: gas };
+  card.hass = { ...h, states: on(gas, "binary_sensor.kitchen_smoke") };
+  const fresh = make("safety-overview-card", {}, { ...h, states: on(gas, "binary_sensor.kitchen_smoke") });
+  const head = (c) => c.shadowRoot.querySelector("ha-card").querySelector(".head").innerHTML;
+  assert.match(head(fresh), /Smoke detected/);
+  assert.equal(head(card), head(fresh));
+});
+
+test("overview: excluding one alarm sensor of a combined detector excludes it, the picker lists every one", () => {
+  const h = makeHass();
+  const card = make("safety-overview-card", { exclude: ["binary_sensor.kitchen_smoke"] }, h);
+  assert.ok(!card._all.some((x) => x.dets.some((d) => d.ids.includes("binary_sensor.kitchen_gas"))));
+  const ed = new (sc.customElements.get("safety-overview-card-editor"))();
+  ed.appendChild = () => {};
+  ed.setConfig({ type: "custom:safety-overview-card" });
+  ed.hass = h;
+  const flat = (schema) => schema.flatMap((f) => (f.schema ? flat(f.schema) : [f]));
+  const field = JSON.stringify(flat(ed._form.schema).filter((f) => f.name === "exclude"));
+  assert.match(field, /kitchen_smoke/);
+  assert.match(field, /kitchen_gas/);
+});
+
+test("reduced motion: the blinking alarm icons stop", () => {
+  const css = [cards["safety-card"].styles, cards["safety-overview-card"].styles].join("");
+  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.tile\.alert \.ic/);
+  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.room\.lvl-alert \.ic/);
+});

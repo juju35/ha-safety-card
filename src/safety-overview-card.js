@@ -27,14 +27,20 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
   _collect() {
     const h = this._hass;
     const c = this._config;
-    const ids = rcByArea(this, (id) => !!scAlarmKind(h, id)).map(([id]) => id);
+    // The registry scan is kept until the registries change; whether an entity is a detector reads its state, checked at
+    // each render so that a detector whose state arrives late still shows.
+    const ids = rcByArea(this, (id) => id.startsWith("binary_sensor.") && !h.entities[id]?.entity_category)
+      .map(([id]) => id)
+      .filter((id) => !!scAlarmKind(h, id));
+    // Excluding one alarm sensor of a combined detector excludes the whole detector (its device).
+    const excludedDevices = new Set((c.exclude || []).map((id) => h.entities?.[id]?.device_id).filter(Boolean));
     const overrides = Object.fromEntries((c.rooms || []).map((x) => [x.area, x]));
     const exclude = new Set(c.exclude_areas || []);
     const rooms = {};
     for (const d of scDetectors(this, ids)) {
-      if (!d.area || exclude.has(d.area) || !h.areas?.[d.area]) continue;
+      if (!d.area || exclude.has(d.area) || !h.areas?.[d.area] || excludedDevices.has(d.device)) continue;
       const r = scRead(h, d, Number(c.battery_threshold) || 20);
-      (rooms[d.area] ||= { id: d.area, dets: [] }).dets.push({ ...r, kind: d.alarms[0].kind, id: (r.active[0] || d.alarms[0]).id });
+      (rooms[d.area] ||= { id: d.area, dets: [] }).dets.push({ ...r, kind: d.alarms[0].kind, id: (r.active[0] || d.alarms[0]).id, ids: d.alarms.map((a) => a.id) });
     }
     const rank = (x) => (x.level === "alert" ? 2 : x.level === "warn" ? 1 : 0);
     let list = Object.values(rooms).map((x) => {
@@ -71,7 +77,7 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
     const rooms = this._collect();
     this._rooms = rooms;
     const all = this._all.flatMap((x) => x.dets.map((d) => ({ ...d, areaName: x.name })));
-    const parts = this._all.map((x) => [x.id, x.name, x.icon, x.dets.map((d) => [d.id, d.level, d.batteryLow, d.replace, d.fault, d.unavailable, d.battery])]);
+    const parts = this._all.map((x) => [x.id, x.name, x.icon, x.dets.map((d) => [d.id, d.level, d.active.map((a) => a.kind), d.batteryLow, d.replace, d.fault, d.unavailable, d.battery])]);
     if (!this._changed([this._openArea, this._zoomed, rooms.map((x) => x.id), parts])) return;
 
     if (!this.shadowRoot.querySelector("ha-card")) {
@@ -191,7 +197,7 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
       .room.lvl-alert { --t: var(--rc-alert); }
       .room.lvl-alert .ic { animation: rc-blink 1.5s ease-in-out infinite; }
       .chips { gap: 3px; margin-top: 4px; }
-      @media (prefers-reduced-motion: reduce) { .room .ic { animation: none; } }
+      @media (prefers-reduced-motion: reduce) { .room.lvl-alert .ic { animation: none; } }
     `;
 }
 
@@ -202,7 +208,7 @@ const SafetyOverviewCardEditor = rcEditor({
   schema: (lang, hass, config) => {
     const probe = hass ? rcProbe(SafetyOverviewCard, hass, { ...config, exclude_areas: [], exclude: [], zoom: false }) : null;
     const rooms = probe ? probe._collect() : [];
-    const ids = rooms.flatMap((x) => x.dets.map((d) => d.id));
+    const ids = rooms.flatMap((x) => x.dets.flatMap((d) => d.ids));
     for (const id of config?.exclude || []) if (!ids.includes(id)) ids.push(id);
     return [
       ...rcOverviewFields(SC_I18N, lang),

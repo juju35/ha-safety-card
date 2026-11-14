@@ -36,11 +36,12 @@ class SafetyCard extends RcCard {
     const h = this._hass;
     const c = this._config;
     if (c.entities?.length || c.area) return super._entries();
-    // Kept until the config or the registry changes, like the area's list: a state change must not rescan the registry.
+    // The registry scan is kept until the config or the registry changes; whether an entity is a detector reads its
+    // state, checked at each render so that a detector whose state arrives late still shows.
     const ids = rcMemo((this._memo ||= {}), "home", [c, h.entities], () => {
       const exclude = new Set(c.exclude || []);
-      return Object.keys(h.entities || {}).filter((id) => !exclude.has(id) && !h.entities[id].hidden && this._candidate(id));
-    });
+      return Object.keys(h.entities || {}).filter((id) => id.startsWith("binary_sensor.") && !exclude.has(id) && !h.entities[id].hidden && !h.entities[id].entity_category);
+    }).filter((id) => this._candidate(id));
     const include = (c.include || []).map((e) => (typeof e === "string" ? { entity: e } : e)).filter((e) => h.states[e.entity]);
     const seen = new Set(ids);
     return [...ids.map((entity) => ({ entity })), ...include.filter((e) => !seen.has(e.entity))];
@@ -252,7 +253,7 @@ class SafetyCard extends RcCard {
     .act-test.armed { color: var(--rc-warn); border-color: color-mix(in srgb, var(--rc-warn) 55%, transparent); }
     .act-test.armed ha-icon { color: var(--rc-warn); }
     .no-blink .tile.alert .ic, .no-blink .big, .no-blink.lvl-alert .badge { animation: none; }
-    @media (prefers-reduced-motion: reduce) { .tile .ic, .big { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .tile.alert .ic, .big { animation: none; } }
   `;
 }
 

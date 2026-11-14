@@ -1,0 +1,27 @@
+{
+  "name": "ha-safety-card",
+  "version": "1.0.0",
+  "description": "Lovelace cards for Home Assistant's smoke, carbon monoxide and gas detectors: alarms first, battery, end of life and test, room by room.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juju35/ha-safety-card.git"
+  },
+  "bugs": {
+    "url": "https://github.com/juju35/ha-safety-card/issues"
+  },
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs && node --check dist/ha-safety-card.js",
+    "test": "node --test test/*.test.mjs",
+    "screenshots": "npm run build && node scripts/screenshots/safety.mjs && node scripts/screenshots/animations.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@mdi/js": "^7.4.47",
+    "acorn": "^8.19.0",
+    "css-tree": "^3.2.1",
+    "playwright": "^1.64.1"
+  }
+}

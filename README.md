@@ -81,16 +81,16 @@ The cards share the look of the other ha-* cards (header with a status pill, com
 
 The cards read Home Assistant's own device classes, so any integration that exposes a smoke (`smoke`), carbon monoxide (`carbon_monoxide`) or gas (`gas`) binary sensor works. What else a tile shows depends on what the integration exposes for the device.
 
-| Integration | Detectors |
-|---|---|
-| [Nest Protect](https://github.com/iMicknl/ha-nest-protect) (Marketplace) | Google Nest Protect |
-| [Netatmo](https://www.home-assistant.io/integrations/netatmo/) (built in) | Netatmo smart smoke and CO alarms |
-| [Zigbee Home Automation](https://www.home-assistant.io/integrations/zha/) (built in) and [Zigbee2MQTT](https://www.zigbee2mqtt.io/) | Aqara, Heiman, frient, X-Sense, Tuya… |
-| [Z-Wave](https://www.home-assistant.io/integrations/zwave_js/) (built in) | Fibaro, Kidde, First Alert… |
-| [Matter](https://www.home-assistant.io/integrations/matter/) (built in) | Matter smoke and CO alarms |
-| [Shelly](https://www.home-assistant.io/integrations/shelly/) (built in) | Shelly Plus Smoke |
-| [Overkiz](https://www.home-assistant.io/integrations/overkiz/) (built in) | Somfy smoke detectors |
-| Ajax, Kidde HomeSafe, X-Sense and other brand integrations | Their smoke, CO and gas detectors |
+| | Integration | Detectors |
+|:---:|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/nest.svg" alt="Google Nest" height="20"> | [Nest Protect](https://github.com/iMicknl/ha-nest-protect) (Marketplace) | Google Nest Protect |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/netatmo.svg" alt="Netatmo" height="20"> | [Netatmo](https://www.home-assistant.io/integrations/netatmo/) (built in) | Netatmo smart smoke and CO alarms |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/zigbee.svg" alt="Zigbee" height="20"> | [Zigbee Home Automation](https://www.home-assistant.io/integrations/zha/) (built in) and [Zigbee2MQTT](https://www.zigbee2mqtt.io/) | Aqara, Heiman, frient, X-Sense, Tuya… |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/z-wave.svg" alt="Z-Wave" height="17"> | [Z-Wave](https://www.home-assistant.io/integrations/zwave_js/) (built in) | Fibaro, Kidde, First Alert… |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/matter.svg" alt="Matter" height="17"> | [Matter](https://www.home-assistant.io/integrations/matter/) (built in) | Matter smoke and CO alarms |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/shelly.svg" alt="Shelly" height="20"> | [Shelly](https://www.home-assistant.io/integrations/shelly/) (built in) | Shelly Plus Smoke |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/somfy.svg" alt="Somfy" height="17"> | [Overkiz](https://www.home-assistant.io/integrations/overkiz/) (built in) | Somfy smoke detectors |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/ajax.svg" alt="Ajax" height="14">&nbsp;<img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/kidde.svg" alt="Kidde" height="20">&nbsp;<img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/x-sense.svg" alt="X-Sense" height="20"> | Ajax, Kidde HomeSafe, X-Sense and other brand integrations | Their smoke, CO and gas detectors |
 
 The battery, end-of-life, fault, CO level, test and silence entities are only shown when the integration exposes them for the device (see [How it works](#how-it-works)).
 

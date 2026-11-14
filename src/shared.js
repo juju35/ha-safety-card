@@ -1472,6 +1472,7 @@ const SC_I18N = {
     ed_sort_state: "Alarms first",
     ed_include_helper: "Detectors from another room, or with no room",
     ed_exclude_helper: "Detectors the card leaves out",
+    other_room: "Other",
   },
   fr: {
     title: "Sécurité",
@@ -1511,6 +1512,7 @@ const SC_I18N = {
     ed_sort_state: "Alarmes d'abord",
     ed_include_helper: "Détecteurs d'une autre pièce, ou sans pièce",
     ed_exclude_helper: "Détecteurs que la carte laisse de côté",
+    other_room: "Autres",
   },
   de: {
     title: "Sicherheit",
@@ -1550,6 +1552,7 @@ const SC_I18N = {
     ed_sort_state: "Alarme zuerst",
     ed_include_helper: "Melder aus einem anderen Raum oder ohne Raum",
     ed_exclude_helper: "Melder, die die Karte auslässt",
+    other_room: "Sonstige",
   },
   es: {
     title: "Seguridad",
@@ -1589,6 +1592,7 @@ const SC_I18N = {
     ed_sort_state: "Alarmas primero",
     ed_include_helper: "Detectores de otra estancia, o sin estancia",
     ed_exclude_helper: "Detectores que la tarjeta deja fuera",
+    other_room: "Otros",
   },
   sr: {
     title: "Безбедност",
@@ -1628,6 +1632,7 @@ const SC_I18N = {
     ed_sort_state: "Прво аларми",
     ed_include_helper: "Детектори из друге просторије или без просторије",
     ed_exclude_helper: "Детектори које картица изоставља",
+    other_room: "Остало",
   },
   "sr-Latn": {
     title: "Bezbednost",
@@ -1667,6 +1672,7 @@ const SC_I18N = {
     ed_sort_state: "Prvo alarmi",
     ed_include_helper: "Detektori iz druge prostorije ili bez prostorije",
     ed_exclude_helper: "Detektori koje kartica izostavlja",
+    other_room: "Ostalo",
   },
   it: {
     title: "Sicurezza",
@@ -1706,6 +1712,7 @@ const SC_I18N = {
     ed_sort_state: "Prima gli allarmi",
     ed_include_helper: "Rilevatori di un'altra stanza, o senza stanza",
     ed_exclude_helper: "Rilevatori che la scheda tralascia",
+    other_room: "Altro",
   },
   nl: {
     title: "Veiligheid",
@@ -1745,6 +1752,7 @@ const SC_I18N = {
     ed_sort_state: "Alarmen eerst",
     ed_include_helper: "Melders uit een andere ruimte, of zonder ruimte",
     ed_exclude_helper: "Melders die de kaart weglaat",
+    other_room: "Overig",
   },
   pt: {
     title: "Segurança",
@@ -1784,6 +1792,7 @@ const SC_I18N = {
     ed_sort_state: "Alarmes primeiro",
     ed_include_helper: "Detetores de outra divisão, ou sem divisão",
     ed_exclude_helper: "Detetores que o cartão deixa de fora",
+    other_room: "Outros",
   },
   pl: {
     title: "Bezpieczeństwo",
@@ -1823,6 +1832,7 @@ const SC_I18N = {
     ed_sort_state: "Najpierw alarmy",
     ed_include_helper: "Czujki z innego pomieszczenia lub bez pomieszczenia",
     ed_exclude_helper: "Czujki pomijane przez kartę",
+    other_room: "Inne",
   },
   ro: {
     title: "Siguranță",
@@ -1862,6 +1872,7 @@ const SC_I18N = {
     ed_sort_state: "Întâi alarmele",
     ed_include_helper: "Detectoare din altă cameră sau fără cameră",
     ed_exclude_helper: "Detectoare pe care cardul le omite",
+    other_room: "Altele",
   },
   da: {
     title: "Sikkerhed",
@@ -1901,6 +1912,7 @@ const SC_I18N = {
     ed_sort_state: "Alarmer først",
     ed_include_helper: "Alarmer fra et andet rum eller uden rum",
     ed_exclude_helper: "Alarmer, som kortet udelader",
+    other_room: "Andet",
   },
   sv: {
     title: "Säkerhet",
@@ -1940,6 +1952,7 @@ const SC_I18N = {
     ed_sort_state: "Larm först",
     ed_include_helper: "Larm från ett annat rum eller utan rum",
     ed_exclude_helper: "Larm som kortet utelämnar",
+    other_room: "Övrigt",
   },
   bg: {
     title: "Безопасност",
@@ -1979,6 +1992,7 @@ const SC_I18N = {
     ed_sort_state: "Първо алармите",
     ed_include_helper: "Детектори от друга стая или без стая",
     ed_exclude_helper: "Детектори, които картата пропуска",
+    other_room: "Други",
   },
   ru: {
     title: "Безопасность",
@@ -2018,6 +2032,7 @@ const SC_I18N = {
     ed_sort_state: "Сначала тревоги",
     ed_include_helper: "Датчики из другой комнаты или без комнаты",
     ed_exclude_helper: "Датчики, которые карточка пропускает",
+    other_room: "Прочее",
   },
   uk: {
     title: "Безпека",
@@ -2057,6 +2072,7 @@ const SC_I18N = {
     ed_sort_state: "Спочатку тривоги",
     ed_include_helper: "Датчики з іншої кімнати або без кімнати",
     ed_exclude_helper: "Датчики, які картка пропускає",
+    other_room: "Інше",
   },
   hu: {
     title: "Biztonság",
@@ -2096,6 +2112,7 @@ const SC_I18N = {
     ed_sort_state: "Riasztások elöl",
     ed_include_helper: "Érzékelők másik helyiségből vagy helyiség nélkül",
     ed_exclude_helper: "Érzékelők, amelyeket a kártya kihagy",
+    other_room: "Egyéb",
   },
   sk: {
     title: "Bezpečnosť",
@@ -2135,6 +2152,7 @@ const SC_I18N = {
     ed_sort_state: "Najprv alarmy",
     ed_include_helper: "Hlásiče z inej miestnosti alebo bez miestnosti",
     ed_exclude_helper: "Hlásiče, ktoré karta vynecháva",
+    other_room: "Ostatné",
   },
   cs: {
     title: "Bezpečnost",
@@ -2174,6 +2192,7 @@ const SC_I18N = {
     ed_sort_state: "Nejdřív alarmy",
     ed_include_helper: "Hlásiče z jiné místnosti nebo bez místnosti",
     ed_exclude_helper: "Hlásiče, které karta vynechává",
+    other_room: "Ostatní",
   },
   sl: {
     title: "Varnost",
@@ -2213,6 +2232,7 @@ const SC_I18N = {
     ed_sort_state: "Najprej alarmi",
     ed_include_helper: "Javljalniki iz drugega prostora ali brez prostora",
     ed_exclude_helper: "Javljalniki, ki jih kartica izpusti",
+    other_room: "Drugo",
   },
   lv: {
     title: "Drošība",
@@ -2252,6 +2272,7 @@ const SC_I18N = {
     ed_sort_state: "Vispirms trauksmes",
     ed_include_helper: "Detektori no citas telpas vai bez telpas",
     ed_exclude_helper: "Detektori, ko kartīte izlaiž",
+    other_room: "Citi",
   },
   el: {
     title: "Ασφάλεια",
@@ -2291,6 +2312,7 @@ const SC_I18N = {
     ed_sort_state: "Πρώτα οι συναγερμοί",
     ed_include_helper: "Ανιχνευτές από άλλο δωμάτιο ή χωρίς δωμάτιο",
     ed_exclude_helper: "Ανιχνευτές που παραλείπει η κάρτα",
+    other_room: "Άλλα",
   },
 };
 
@@ -2604,8 +2626,11 @@ class RcCard extends HTMLElement {
   }
 
   _paint(level, head, tiles, extraClass = "") {
-    // The tile with the keyboard focus keeps it through the redraw (a toggle or a brightness step from the keyboard).
-    const focused = this._byPointer ? null : this.shadowRoot.activeElement?.dataset?.id;
+    // The tile or control with the keyboard focus keeps it through the redraw (a toggle, a step or a two-tap
+    // confirmation from the keyboard): tiles by their data-id, controls by their data-k.
+    const active = this._byPointer ? null : this.shadowRoot.activeElement;
+    const focused = active?.dataset?.id;
+    const focusKey = active?.dataset?.k;
     this.shadowRoot.innerHTML = `
       <style>${RC_BASE_STYLES}${this.constructor.styles}</style>
       <ha-card class="lvl-${level}${extraClass}${this._tiles() ? " layout-tiles" : ""}">
@@ -2621,6 +2646,7 @@ class RcCard extends HTMLElement {
       if (focused && el.dataset.id === focused) el.focus({ preventScroll: true });
     }
     this._bindAfter(root);
+    if (focusKey) root.querySelector(`[data-k="${focusKey}"]`)?.focus({ preventScroll: true });
   }
 
   // What a card adds under its tiles (the Lights card's scenes), and its event wiring.
@@ -3212,7 +3238,10 @@ const RC_BASE_STYLES = `
   :host([hide-title]) .head > .title { visibility: hidden; }
   .pill { all: unset; flex: 0 1 auto; min-width: 0; box-sizing: border-box; position: relative;
           display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 500;
-          padding: 1px 8px; border-radius: 999px; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+          padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--c) 14%, transparent);
+          /* Coloured text is half the accent, half the text colour: 4.5:1 on its tint in light and dark themes, where
+             the bare accent (amber above all) is not. */
+          color: color-mix(in srgb, var(--c) 50%, var(--primary-text-color, #212121)); }
   .pt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pill ha-icon { flex: none; }
   /* A card this narrow (6 columns of the Sections view on a phone): the title is at its few letters already, so the
@@ -3281,7 +3310,8 @@ const RC_BASE_STYLES = `
 // Mini cards: layout, chips and zoom button. A chip is plain (icon and text) until it needs a look: then a tinted pill.
 // The zoom / detail button of the mini cards and the overviews.
 const RC_ZOOM_STYLES = `
-  .zoom { all: unset; flex: none; cursor: pointer; width: 24px; height: 24px; margin: -4px -4px -4px 0; border-radius: 50%;
+  /* 40 px to tap, laid out as the 24 px it looks (the negative margins). */
+  .zoom { all: unset; flex: none; cursor: pointer; width: 40px; height: 40px; margin: -12px -12px -12px -8px; border-radius: 50%;
           display: grid; place-items: center; color: var(--secondary-text-color); }
   .zoom ha-icon { --mdc-icon-size: 16px; }
   .zoom:hover { background: color-mix(in srgb, var(--rc-idle) 16%, transparent); color: var(--primary-text-color); }
@@ -3336,7 +3366,7 @@ const RC_ROOM_GRID_STYLES = `
   /* The state (a sentence: "Water leak", "Too humid +1") wraps between its words only; a word too long for its line
      ends with "…" rather than being broken ("Pr|es|en|ce"). */
   .room .state { grid-area: state; overflow-wrap: normal; overflow: hidden; text-overflow: ellipsis; }
-  .room:not(.lvl-ok) .state { color: var(--t); }
+  .room:not(.lvl-ok) .state { color: color-mix(in srgb, var(--t) 50%, var(--primary-text-color, #212121)); }
   .chips { grid-area: chips; display: flex; flex-wrap: wrap; }
   .chips:empty { display: none; }
   .empty { grid-column: 1 / -1; padding: 12px; text-align: center; font-size: 13px; color: var(--secondary-text-color); }
@@ -3366,11 +3396,11 @@ const RC_MINI_STYLES = `${RC_ZOOM_STYLES}
   /* A chip never runs past the card: a long name ends with an ellipsis. */
   .r { all: unset; cursor: pointer; display: inline-flex; align-items: baseline; gap: 1px; padding: 0 5px 0 4px;
        box-sizing: border-box; min-width: 0; max-width: 100%; overflow: hidden;
-       border-radius: 999px; font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap; --t: var(--rc-ok);
+       border-radius: 999px; font-size: 12px; font-weight: 500; line-height: 24px; white-space: nowrap; --t: var(--rc-ok);
        color: var(--primary-text-color); }
   .r ha-icon { --mdc-icon-size: 13px; flex: none; color: var(--t); align-self: center; margin-right: 2px; }
   .r > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-  .r.pill { color: var(--t); background: color-mix(in srgb, var(--t) 14%, transparent); }
+  .r.pill { color: color-mix(in srgb, var(--t) 50%, var(--primary-text-color, #212121)); background: color-mix(in srgb, var(--t) 14%, transparent); }
   .r:hover { background: color-mix(in srgb, var(--t) 20%, var(--secondary-background-color, transparent)); }
   .r:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
 `;

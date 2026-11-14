@@ -74,6 +74,8 @@ The cards share the look of the other ha-* cards (header with a status pill, com
 - Only the rooms needing a look show; the **detail** button (top right) shows every room, and back (`zoom: false`: every room, always); rooms needing a look come first (`sort: state`, the default) or by name (`sort: name`)
 - **Tap** a room to unfold its safety card at the top of the card (banner, tiles, test button); tap it again or anywhere else to fold it back
 - `rooms` reorders the rooms and overrides their name, icon or `navigation_path` (a tap then opens that dashboard instead of unfolding)
+- Detectors with no room (or whose room was deleted) gather in an **Other** tile: their alarms always reach the header
+- Excluding one alarm sensor of a combined detector (`exclude`) leaves the whole detector out
 
 ## Supported integrations
 
@@ -152,7 +154,7 @@ type: custom:safety-overview-card
 | `layout` | `compact` \| `tiles` | `compact` | `tiles`: large tiles, the size of Home Assistant's Tile card |
 | `only_alerts` | boolean | `false` | Full card only: show only the detectors in alarm or needing a look (always the case in the mini card's compact view) |
 | `hide_when_clear` | boolean | `false` | Hide the card when every detector is fine |
-| `banner` | boolean | `true` | The alarm banner under the header |
+| `banner` | boolean | `true` | The alarm banner under the header (full card) |
 | `test_button` | boolean | `true` | The “Test all” button, when the detectors have a test button |
 | `blink` | boolean | `true` | Blink the alarmed detectors and pulse the badge |
 | `battery_threshold` | number | `20` | Battery level (%) under which a detector needs a look |

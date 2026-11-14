@@ -259,3 +259,38 @@ test("reduced motion: the blinking alarm icons stop", () => {
   assert.match(css, /prefers-reduced-motion: reduce\) \{ \.tile\.alert \.ic/);
   assert.match(css, /prefers-reduced-motion: reduce\) \{ \.room\.lvl-alert \.ic/);
 });
+
+test("overview: a detector with no room still counts, in an Other tile", () => {
+  const h = makeHass();
+  h.entities["binary_sensor.attic_smoke"] = {};
+  h.states["binary_sensor.attic_smoke"] = st("binary_sensor.attic_smoke", "on", { device_class: "smoke", friendly_name: "Attic smoke" });
+  const ov = make("safety-overview-card", {}, h);
+  const other = ov._all.find((x) => x.id === "_other");
+  assert.ok(other, "an Other tile");
+  assert.equal(other.name, "Other");
+  assert.equal(other.level, "alert");
+  assert.match(ov.shadowRoot.querySelector("ha-card").querySelector(".head").innerHTML, /Smoke detected/);
+});
+
+test("no detector: grey, a neutral shield, no zoom", () => {
+  const h = makeHass();
+  h.entities = {};
+  h.states = {};
+  const card = make("safety-card", {}, h);
+  assert.equal(card._summary(card._items).level, "none");
+  const ov = make("safety-overview-card", {}, h);
+  assert.doesNotMatch(ov.shadowRoot.querySelector("ha-card").querySelector(".head").innerHTML, /class="zoom"/);
+});
+
+test("the alarm banner is announced once, not at each minute's redraw", () => {
+  const card = make("safety-card", {}, withAlarm());
+  assert.match(html(card), /class="banner" role="alert"/);
+  card._sig = null;
+  card._render();
+  assert.match(html(card), /class="banner" role="group"/);
+});
+
+test("the action buttons keep the keyboard focus through a redraw (data-k)", () => {
+  const card = make("safety-card", {}, withAlarm());
+  assert.match(html(card), /act-silence" data-k="silence"|act-details" data-k="details"/);
+});

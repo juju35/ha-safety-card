@@ -137,8 +137,9 @@ class SafetyCard extends RcCard {
     return {
       alarms,
       top,
-      level: alarms.length ? "alert" : warn ? "warn" : "ok",
-      icon: alarms.length ? RC_ALERT_KINDS[top].on : warn ? "mdi:shield-alert-outline" : "mdi:shield-check-outline",
+      // No detector: grey and a neutral shield, not a reassuring green check.
+      level: alarms.length ? "alert" : warn ? "warn" : items.length ? "ok" : "none",
+      icon: alarms.length ? RC_ALERT_KINDS[top].on : warn ? "mdi:shield-alert-outline" : items.length ? "mdi:shield-check-outline" : "mdi:shield-outline",
       status,
     };
   }
@@ -162,6 +163,7 @@ class SafetyCard extends RcCard {
     const c = this._config;
     const v = this._visible(items, [this._armed, this._parts(items)]);
     if (!v) return;
+    if (!v.alarms.length) this._announced = null;
     const tiles = v.shown.map((i) => this._tile(i, { cls: ` ${i.level}`, state: rcEsc(i.state) })).join("");
     const head = this._head({ icon: v.icon, title: c.title || this._areaName() || this._t("title"), status: v.status });
     this._paint(v.level, head + (c.banner !== false ? this._banner(v.alarms) : ""), tiles, c.blink === false ? " no-blink" : "");
@@ -177,13 +179,17 @@ class SafetyCard extends RcCard {
     const others = alarms.slice(1).map(place);
     if (others.length) where.push(this._t("also", { list: [...new Set(others)].join(", ") }));
     const silence = alarms.some((i) => i.silence)
-      ? `<button class="act act-silence"><ha-icon icon="mdi:volume-off"></ha-icon><span>${rcEsc(this._t("silence"))}</span></button>`
+      ? `<button class="act act-silence" data-k="silence"><ha-icon icon="mdi:volume-off"></ha-icon><span>${rcEsc(this._t("silence"))}</span></button>`
       : "";
+    // Announced when the alarm starts or changes, not again at each redraw (the "since" moves every minute).
+    const key = JSON.stringify(alarms.map((i) => [i.id, i.top]));
+    const announce = key !== this._announced;
+    this._announced = key;
     return `
-      <div class="banner" role="alert">
+      <div class="banner"${announce ? ' role="alert"' : ' role="group"'} aria-label="${rcEsc(this._t(first.top))}">
         <span class="big"><ha-icon icon="${rcEsc(first.icon)}"></ha-icon></span>
         <span class="bt"><span class="bh">${rcEsc(this._t(first.top))}</span><span class="bs">${rcEsc(where.join(" · "))}</span></span>
-        <span class="bact">${silence}<button class="act act-details"><ha-icon icon="mdi:information-outline"></ha-icon><span>${rcEsc(this._t("details"))}</span></button></span>
+        <span class="bact">${silence}<button class="act act-details" data-k="details"><ha-icon icon="mdi:information-outline"></ha-icon><span>${rcEsc(this._t("details"))}</span></button></span>
       </div>`;
   }
 
@@ -193,7 +199,7 @@ class SafetyCard extends RcCard {
     const items = this._items || [];
     if (this._config.test_button === false || !items.some((i) => i.test) || items.some((i) => i.level === "alert")) return "";
     const label = this._t(this._armed ? "test_confirm" : "test_all");
-    return `<div class="foot"><button class="act act-test${this._armed ? " armed" : ""}"><ha-icon icon="mdi:wrench-outline"></ha-icon><span>${rcEsc(label)}</span></button></div>`;
+    return `<div class="foot"><button class="act act-test${this._armed ? " armed" : ""}" data-k="test"><ha-icon icon="mdi:wrench-outline"></ha-icon><span>${rcEsc(label)}</span></button></div>`;
   }
 
   _bindAfter(root) {
@@ -227,13 +233,14 @@ class SafetyCard extends RcCard {
     ha-card.lvl-ok    { --c: var(--rc-ok); }
     ha-card.lvl-warn  { --c: var(--rc-warn); }
     ha-card.lvl-alert { --c: var(--rc-alert); }
+    ha-card.lvl-none  { --c: var(--rc-idle); }
     .tile { --t: var(--rc-ok); }
     .tile.warn  { --t: var(--rc-warn); }
     .tile.alert { --t: var(--rc-alert); }
-    .tile:not(.off) .state { color: var(--t); }
+    .tile:not(.off) .state { color: color-mix(in srgb, var(--t) 50%, var(--primary-text-color, #212121)); }
     .tile.alert .ic { animation: rc-blink 1.5s ease-in-out infinite; }
     .banner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px; border-radius: 12px;
-              color: var(--rc-alert); background: color-mix(in srgb, var(--rc-alert) 12%, var(--secondary-background-color, transparent));
+              color: color-mix(in srgb, var(--rc-alert) 50%, var(--primary-text-color, #212121)); background: color-mix(in srgb, var(--rc-alert) 12%, var(--secondary-background-color, transparent));
               border: 1px solid color-mix(in srgb, var(--rc-alert) 30%, transparent); }
     .big { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
            background: color-mix(in srgb, var(--rc-alert) 20%, transparent); animation: rc-blink 1.5s ease-in-out infinite; }
@@ -243,14 +250,14 @@ class SafetyCard extends RcCard {
     .bs { font-size: 12px; color: var(--primary-text-color); opacity: .85; overflow-wrap: break-word; }
     .bact, .foot { display: flex; flex-wrap: wrap; gap: 6px; }
     .foot { margin-top: 8px; }
-    .act { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 36px;
+    .act { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 40px;
            padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--primary-text-color);
            border: 1px solid var(--divider-color, rgba(127,127,127,.3)); background: color-mix(in srgb, var(--card-background-color, #fff) 60%, transparent); }
     .act ha-icon { --mdc-icon-size: 18px; color: var(--c); }
     .act:hover { background: color-mix(in srgb, var(--c) 12%, transparent); }
     .act:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
-    .act-silence { color: var(--rc-alert); border-color: color-mix(in srgb, var(--rc-alert) 45%, transparent); }
-    .act-test.armed { color: var(--rc-warn); border-color: color-mix(in srgb, var(--rc-warn) 55%, transparent); }
+    .act-silence { color: color-mix(in srgb, var(--rc-alert) 50%, var(--primary-text-color, #212121)); border-color: color-mix(in srgb, var(--rc-alert) 45%, transparent); }
+    .act-test.armed { color: color-mix(in srgb, var(--rc-warn) 50%, var(--primary-text-color, #212121)); border-color: color-mix(in srgb, var(--rc-warn) 55%, transparent); }
     .act-test.armed ha-icon { color: var(--rc-warn); }
     .no-blink .tile.alert .ic, .no-blink .big, .no-blink.lvl-alert .badge { animation: none; }
     @media (prefers-reduced-motion: reduce) { .tile.alert .ic, .big { animation: none; } }
@@ -324,13 +331,17 @@ class SafetyMiniCard extends rcMini(
       )
       .join("");
     this._paintMini({ level: v.level, icon: v.icon, status: v.status, chips, cls: this._config.blink === false ? " no-blink" : "" });
+    // An alarm is announced on the compact view too, once when it starts or changes.
+    const key = v.alarms.length ? JSON.stringify(v.alarms.map((i) => [i.id, i.top])) : null;
+    if (key && key !== this._announced) this.shadowRoot.querySelector(".mini .st")?.setAttribute?.("role", "alert");
+    this._announced = key;
   }
 }
 
 const SafetyMiniCardEditor = rcEditor({
   card: SafetyMiniCard,
   helpers: [...SC_CARD_HELPERS, "zoom"],
-  schema: scSchema(SafetyMiniCard, ["show_title", "hide_when_clear", "banner", "test_button", "blink", "zoom"]),
+  schema: scSchema(SafetyMiniCard, ["show_title", "hide_when_clear", "test_button", "blink", "zoom"]),
 });
 
 rcRegister(

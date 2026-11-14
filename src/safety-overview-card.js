@@ -4,6 +4,9 @@
  * https://github.com/juju35/ha-safety-card
  */
 
+// The tile of the detectors with no room.
+const SC_OTHER = "_other";
+
 class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
   static tag = "safety-overview-card";
   static i18n = SC_I18N;
@@ -23,7 +26,8 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
   }
 
   // ── Data ───────────────────────────────────────────────────────────────────
-  // The rooms and their detectors (a detector with no room is left out: a room tile needs a room).
+  // The rooms and their detectors; the detectors with no room (or a deleted one) gather in an "Other" tile, so that
+  // their alarms are never left out.
   _collect() {
     const h = this._hass;
     const c = this._config;
@@ -32,21 +36,31 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
     const ids = rcByArea(this, (id) => id.startsWith("binary_sensor.") && !h.entities[id]?.entity_category)
       .map(([id]) => id)
       .filter((id) => !!scAlarmKind(h, id));
+    const loose = rcMemo((this._memo ||= {}), "loose", [c, h.entities, h.devices], () => {
+      const excluded = new Set(c.exclude || []);
+      return Object.keys(h.entities || {}).filter((id) => {
+        const r = h.entities[id];
+        return id.startsWith("binary_sensor.") && !r.hidden && !r.entity_category && !excluded.has(id) && !this._areaOf(id);
+      });
+    }).filter((id) => !!scAlarmKind(h, id));
     // Excluding one alarm sensor of a combined detector excludes the whole detector (its device).
     const excludedDevices = new Set((c.exclude || []).map((id) => h.entities?.[id]?.device_id).filter(Boolean));
     const overrides = Object.fromEntries((c.rooms || []).map((x) => [x.area, x]));
     const exclude = new Set(c.exclude_areas || []);
     const rooms = {};
-    for (const d of scDetectors(this, ids)) {
-      if (!d.area || exclude.has(d.area) || !h.areas?.[d.area] || excludedDevices.has(d.device)) continue;
+    for (const d of scDetectors(this, [...ids, ...loose])) {
+      if (exclude.has(d.area) || excludedDevices.has(d.device)) continue;
+      const room = d.area && h.areas?.[d.area] ? d.area : SC_OTHER;
+      if (room === SC_OTHER && exclude.has(SC_OTHER)) continue;
       const r = scRead(h, d, Number(c.battery_threshold) || 20);
-      (rooms[d.area] ||= { id: d.area, dets: [] }).dets.push({ ...r, kind: d.alarms[0].kind, id: (r.active[0] || d.alarms[0]).id, ids: d.alarms.map((a) => a.id) });
+      (rooms[room] ||= { id: room, dets: [] }).dets.push({ ...r, kind: d.alarms[0].kind, id: (r.active[0] || d.alarms[0]).id, ids: d.alarms.map((a) => a.id) });
     }
     const rank = (x) => (x.level === "alert" ? 2 : x.level === "warn" ? 1 : 0);
     let list = Object.values(rooms).map((x) => {
       const area = h.areas[x.id];
       const o = overrides[x.id] || {};
       const level = x.dets.some((d) => d.level === "alert") ? "alert" : x.dets.some((d) => d.level === "warn") ? "warn" : "ok";
+      if (x.id === SC_OTHER) return { ...x, level, name: o.name ?? this._t("other_room"), icon: o.icon ?? "mdi:map-marker-question-outline", navigation_path: o.navigation_path };
       return { ...x, level, name: o.name ?? area.name ?? x.id, icon: o.icon ?? rcRoomIcon(area), navigation_path: o.navigation_path };
     });
     rcSortRooms(list, c, rank);
@@ -95,7 +109,8 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
     const alarms = all.filter((d) => d.level === "alert");
     const warn = all.filter((d) => d.level === "warn");
     const top = rcTopAlert(alarms.flatMap((d) => d.active.map((a) => a.kind)));
-    const level = alarms.length ? "alert" : warn.length ? "warn" : "ok";
+    // No detector: grey, not a reassuring green.
+    const level = alarms.length ? "alert" : warn.length ? "warn" : all.length ? "ok" : "none";
     const status = alarms.length
       ? this._t("alarm_in", { alarm: this._t(top), room: alarms[0].areaName })
       : warn.length
@@ -119,7 +134,7 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
       <div class="title">${rcEsc(c.title || this._t("title"))}</div>
       ${headChips ? `<div class="hchips">${headChips}</div>` : ""}
       <div class="pill" title="${rcEsc(status)}"><span class="pt">${rcEsc(status)}</span></div>
-      ${rcZoomButton(this)}`;
+      ${all.length ? rcZoomButton(this) : ""}`;
 
     // A room tile: its name and state, then one chip per detector, tinted by its state.
     this._roomGrid(card.querySelector(".grid"), rooms, (x) => {
@@ -160,7 +175,8 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
     const el = document.createElement("safety-card");
     el.setConfig({
       type: "custom:safety-card",
-      area: x.id,
+      // The "Other" tile has no area: its detectors are listed.
+      ...(x.id === SC_OTHER ? { entities: x.dets.flatMap((d) => d.ids) } : { area: x.id }),
       exclude: this._config.exclude || [],
       battery_threshold: this._config.battery_threshold,
       ...(this._config.language ? { language: this._config.language } : {}),
@@ -173,11 +189,12 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
   static styles = `${RC_ZOOM_STYLES}${RC_ROOM_GRID_STYLES}
       ha-card { container-type: inline-size; position: relative; }
       ha-card.lvl-ok    { --c: var(--rc-ok); }
+      ha-card.lvl-none  { --c: var(--rc-idle); }
       ha-card.lvl-warn  { --c: var(--rc-warn); }
       ha-card.lvl-alert { --c: var(--rc-alert); }
       .chip { --k: var(--rc-ok); flex: none; display: inline-flex; align-items: center; gap: 2px; height: 18px; padding: 0 5px;
               border-radius: 999px; font-size: 11px; font-weight: 500; line-height: 1; white-space: nowrap;
-              color: var(--k); background: color-mix(in srgb, var(--k) 14%, transparent); }
+              color: color-mix(in srgb, var(--k) 50%, var(--primary-text-color, #212121)); background: color-mix(in srgb, var(--k) 14%, transparent); }
       .head .chip { height: 20px; padding: 0 6px; }
       .chip ha-icon { --mdc-icon-size: 12px; }
       .chip:not(:has(span)) { width: 18px; padding: 0; justify-content: center; }
@@ -186,7 +203,11 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
       .hchips { flex: none; display: flex; align-items: center; gap: inherit; }
       @container (max-width: 420px) {
         .head { gap: 6px; flex-wrap: wrap; }
-        .hchips { order: 1; flex: 1 0 100%; flex-wrap: wrap; box-sizing: border-box; padding-left: 46px; }
+        /* The chips go under the title; the pill and the zoom stay on the title's row. */
+        .hchips { order: 2; flex: 1 0 100%; flex-wrap: wrap; box-sizing: border-box; padding-left: 46px; }
+        .head > .pill, .head > .zoom { order: 1; }
+        /* The pill shrinks (and ellipsises) before the zoom would wrap to a line of its own. */
+        .head > .pill { max-width: calc(100% - 136px); }
       }
       @container (max-width: 260px) {
         .head::after { content: none; }

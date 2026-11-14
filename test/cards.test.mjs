@@ -200,3 +200,15 @@ test("editors: every field has a label, and every helper listed has its text", (
     }
   }
 });
+
+test("whole home: a state change keeps the list of detectors, a new state still shows", () => {
+  const h = makeHass();
+  const card = make("safety-card", {}, h);
+  const before = card._items.length;
+  const first = card._items[0].id;
+  // A new hass with new states but the same registry: the list is not rebuilt, the states are read again.
+  const next = { ...h, states: { ...h.states, [first]: { ...h.states[first], state: "on" } } };
+  card.hass = next;
+  assert.equal(card._items.length, before);
+  assert.equal(card._items.find((i) => i.id === first).level, "alert");
+});

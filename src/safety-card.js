@@ -36,7 +36,8 @@ class SafetyCard extends RcCard {
     const h = this._hass;
     const c = this._config;
     if (c.entities?.length || c.area) return super._entries();
-    const ids = rcMemo((this._memo ||= {}), "home", [c, h.entities, h.states], () => {
+    // Kept until the config or the registry changes, like the area's list: a state change must not rescan the registry.
+    const ids = rcMemo((this._memo ||= {}), "home", [c, h.entities], () => {
       const exclude = new Set(c.exclude || []);
       return Object.keys(h.entities || {}).filter((id) => !exclude.has(id) && !h.entities[id].hidden && this._candidate(id));
     });

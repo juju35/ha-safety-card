@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 - 2026-11-16
+
+### Fixes
+- Overview tiles keep a neutral background at every level (tile look B); the state reads from the tinted icon badge, the coloured state line and the per-detector chips. An alarm still stands out in red without tinting the whole tile.
+
 ## 1.0.0 - 2026-11-14
 
 ### Features

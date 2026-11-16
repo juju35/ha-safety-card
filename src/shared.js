@@ -1341,17 +1341,17 @@ const RC_I18N = {
 };
 
 // ── Safety detectors ─────────────────────────────────────────────────────────
-// A detector is a device with one or more alarm binary sensors (smoke, carbon monoxide, gas); an alarm sensor with no
-// device is a detector of its own. What else the device exposes is read from its other entities: battery (a level, or a
-// "battery low" binary sensor), problem sensors (end of life, fault), a carbon monoxide level, test and silence buttons.
-const SC_KINDS = ["smoke", "co", "gas"];
-const SC_KIND_ICONS = { smoke: "mdi:smoke-detector-variant", co: "mdi:molecule-co", gas: "mdi:gas-burner" };
+// A detector is a device with one or more alarm binary sensors (smoke, carbon monoxide, gas, water leak); an alarm sensor
+// with no device is a detector of its own. What else the device exposes is read from its other entities: battery (a level,
+// or a "battery low" binary sensor), problem sensors (end of life, fault), a carbon monoxide level, test and silence buttons.
+const SC_KINDS = ["smoke", "co", "gas", "leak"];
+const SC_KIND_ICONS = { smoke: "mdi:smoke-detector-variant", co: "mdi:molecule-co", gas: "mdi:gas-burner", leak: "mdi:water-check" };
 // A problem sensor that says the detector reached its end of life (else it is a fault).
 const SC_EOL = /end.?of.?life|fin.?de.?vie|replace|remplac|expir|lifetime|dur[ée]e.?de.?vie|lebensdauer/i;
 const SC_SILENCE = /silence|hush|mute|sourdine|stumm/i;
 const SC_TEST = /(^|[\s_.-])(self.?)?test/i;
 
-// Alarm kind of an entity (`smoke`, `co`, `gas`), undefined for anything else (configuration and diagnostic ones too).
+// Alarm kind of an entity (`smoke`, `co`, `gas`, `leak`), undefined for anything else (configuration and diagnostic ones too).
 const scAlarmKind = (hass, id) => {
   if (!id.startsWith("binary_sensor.") || hass.entities?.[id]?.entity_category) return undefined;
   const kind = rcAlertKind(hass.states[id]?.attributes.device_class);
@@ -1445,6 +1445,7 @@ const SC_I18N = {
     k_smoke: "Smoke",
     k_co: "CO",
     k_gas: "Gas",
+    k_leak: "Leak",
     ok: "OK",
     battery_pct: "Battery {n}%",
     battery_low: "Battery low",
@@ -1485,6 +1486,7 @@ const SC_I18N = {
     k_smoke: "Fumée",
     k_co: "CO",
     k_gas: "Gaz",
+    k_leak: "Fuite",
     ok: "OK",
     battery_pct: "Pile {n} %",
     battery_low: "Pile faible",
@@ -1525,6 +1527,7 @@ const SC_I18N = {
     k_smoke: "Rauch",
     k_co: "CO",
     k_gas: "Gas",
+    k_leak: "Leck",
     ok: "OK",
     battery_pct: "Batterie {n} %",
     battery_low: "Batterie schwach",
@@ -1565,6 +1568,7 @@ const SC_I18N = {
     k_smoke: "Humo",
     k_co: "CO",
     k_gas: "Gas",
+    k_leak: "Fuga",
     ok: "OK",
     battery_pct: "Batería {n} %",
     battery_low: "Batería baja",
@@ -1605,6 +1609,7 @@ const SC_I18N = {
     k_smoke: "Дим",
     k_co: "CO",
     k_gas: "Гас",
+    k_leak: "Цурење",
     ok: "У реду",
     battery_pct: "Батерија {n} %",
     battery_low: "Слаба батерија",
@@ -1645,6 +1650,7 @@ const SC_I18N = {
     k_smoke: "Dim",
     k_co: "CO",
     k_gas: "Gas",
+    k_leak: "Curenje",
     ok: "U redu",
     battery_pct: "Baterija {n} %",
     battery_low: "Slaba baterija",
@@ -1685,6 +1691,7 @@ const SC_I18N = {
     k_smoke: "Fumo",
     k_co: "CO",
     k_gas: "Gas",
+    k_leak: "Perdita",
     ok: "OK",
     battery_pct: "Batteria {n} %",
     battery_low: "Batteria scarica",
@@ -1725,6 +1732,7 @@ const SC_I18N = {
     k_smoke: "Rook",
     k_co: "CO",
     k_gas: "Gas",
+    k_leak: "Lek",
     ok: "OK",
     battery_pct: "Batterij {n} %",
     battery_low: "Batterij bijna leeg",
@@ -1765,6 +1773,7 @@ const SC_I18N = {
     k_smoke: "Fumo",
     k_co: "CO",
     k_gas: "Gás",
+    k_leak: "Fuga",
     ok: "OK",
     battery_pct: "Bateria {n} %",
     battery_low: "Bateria fraca",
@@ -1805,6 +1814,7 @@ const SC_I18N = {
     k_smoke: "Dym",
     k_co: "CO",
     k_gas: "Gaz",
+    k_leak: "Wyciek",
     ok: "OK",
     battery_pct: "Bateria {n} %",
     battery_low: "Słaba bateria",
@@ -1845,6 +1855,7 @@ const SC_I18N = {
     k_smoke: "Fum",
     k_co: "CO",
     k_gas: "Gaz",
+    k_leak: "Scurgere",
     ok: "OK",
     battery_pct: "Baterie {n} %",
     battery_low: "Baterie descărcată",
@@ -1885,6 +1896,7 @@ const SC_I18N = {
     k_smoke: "Røg",
     k_co: "CO",
     k_gas: "Gas",
+    k_leak: "Lækage",
     ok: "OK",
     battery_pct: "Batteri {n} %",
     battery_low: "Lavt batteri",
@@ -1925,6 +1937,7 @@ const SC_I18N = {
     k_smoke: "Rök",
     k_co: "CO",
     k_gas: "Gas",
+    k_leak: "Läcka",
     ok: "OK",
     battery_pct: "Batteri {n} %",
     battery_low: "Svagt batteri",
@@ -1965,6 +1978,7 @@ const SC_I18N = {
     k_smoke: "Дим",
     k_co: "CO",
     k_gas: "Газ",
+    k_leak: "Теч",
     ok: "OK",
     battery_pct: "Батерия {n} %",
     battery_low: "Слаба батерия",
@@ -2005,6 +2019,7 @@ const SC_I18N = {
     k_smoke: "Дым",
     k_co: "CO",
     k_gas: "Газ",
+    k_leak: "Протечка",
     ok: "OK",
     battery_pct: "Батарея {n} %",
     battery_low: "Батарея разряжена",
@@ -2045,6 +2060,7 @@ const SC_I18N = {
     k_smoke: "Дим",
     k_co: "CO",
     k_gas: "Газ",
+    k_leak: "Протікання",
     ok: "OK",
     battery_pct: "Батарея {n} %",
     battery_low: "Батарея розряджена",
@@ -2085,6 +2101,7 @@ const SC_I18N = {
     k_smoke: "Füst",
     k_co: "CO",
     k_gas: "Gáz",
+    k_leak: "Szivárgás",
     ok: "OK",
     battery_pct: "Akkumulátor {n} %",
     battery_low: "Gyenge elem",
@@ -2125,6 +2142,7 @@ const SC_I18N = {
     k_smoke: "Dym",
     k_co: "CO",
     k_gas: "Plyn",
+    k_leak: "Únik",
     ok: "OK",
     battery_pct: "Batéria {n} %",
     battery_low: "Slabá batéria",
@@ -2165,6 +2183,7 @@ const SC_I18N = {
     k_smoke: "Kouř",
     k_co: "CO",
     k_gas: "Plyn",
+    k_leak: "Únik",
     ok: "OK",
     battery_pct: "Baterie {n} %",
     battery_low: "Slabá baterie",
@@ -2205,6 +2224,7 @@ const SC_I18N = {
     k_smoke: "Dim",
     k_co: "CO",
     k_gas: "Plin",
+    k_leak: "Puščanje",
     ok: "V redu",
     battery_pct: "Baterija {n} %",
     battery_low: "Šibka baterija",
@@ -2245,6 +2265,7 @@ const SC_I18N = {
     k_smoke: "Dūmi",
     k_co: "CO",
     k_gas: "Gāze",
+    k_leak: "Noplūde",
     ok: "Labi",
     battery_pct: "Baterija {n} %",
     battery_low: "Vāja baterija",
@@ -2285,6 +2306,7 @@ const SC_I18N = {
     k_smoke: "Καπνός",
     k_co: "CO",
     k_gas: "Αέριο",
+    k_leak: "Διαρροή",
     ok: "OK",
     battery_pct: "Μπαταρία {n} %",
     battery_low: "Χαμηλή μπαταρία",

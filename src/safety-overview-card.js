@@ -1,5 +1,5 @@
 /**
- * safety-overview-card: every room with a smoke, carbon monoxide or gas detector, at a glance. The rooms needing a look come
+ * safety-overview-card: every room with a smoke, carbon monoxide, gas or water leak detector, at a glance. The rooms needing a look come
  * first (only them until the detail button is pressed); a tap on a room unfolds its safety card.
  * https://github.com/juju35/ha-safety-card
  */
@@ -246,5 +246,5 @@ rcRegister(
   SafetyOverviewCard,
   SafetyOverviewCardEditor,
   "Safety Overview Card",
-  "Every room's smoke, carbon monoxide and gas detectors at a glance; tap a room for its safety card",
+  "Every room's smoke, carbon monoxide, gas and water leak detectors at a glance; tap a room for its safety card",
 );

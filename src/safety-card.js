@@ -1,5 +1,5 @@
 /**
- * safety-card / safety-mini-card: the smoke, carbon monoxide and gas detectors of a room, or of the whole home. Alarms come
+ * safety-card / safety-mini-card: the smoke, carbon monoxide, gas and water leak detectors of a room, or of the whole home. Alarms come
  * first, with a banner; then what needs a look (battery, end of life, fault, unavailable); then the quiet ones.
  * https://github.com/juju35/ha-safety-card
  */
@@ -301,7 +301,7 @@ rcRegister(
   SafetyCard,
   SafetyCardEditor,
   "Safety Card",
-  "Smoke, carbon monoxide and gas detectors of a room or the whole home: alarms first, battery, end of life and test",
+  "Smoke, carbon monoxide, gas and water leak detectors of a room or the whole home: alarms first, battery, end of life and test",
 );
 
 // ── Mini card ────────────────────────────────────────────────────────────────

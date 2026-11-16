@@ -70,13 +70,17 @@ const recordCycle = async (page, dir, seconds) => {
 // ── The GIFs ─────────────────────────────────────────────────────────────────
 const browser = await launch();
 
-// The smoke alarm, in both themes: <name>.gif light, <name>-dark.gif dark. The alarmed tiles and the banner's icon blink
+// The smoke alarm and the water leak, in both themes: <name>.gif light, <name>-dark.gif dark. The alarmed tiles and the banner's icon blink
 // (rc-blink, 1.5 s) while the header badge pulses (rc-pulse, 1.6 s): one cycle of each, stepped frame by frame.
 for (const theme of ["light", "dark"]) {
   const dark = theme === "dark";
   const suffix = dark ? "-dark" : "";
-  for (const [tag, name] of [["safety-card", "safety-alarm"], ["safety-mini-card", "safety-mini-alarm"]]) {
-    const { hass, config } = setup({ scene: "alarm", config: { blink: true } });
+  for (const [tag, name, scene] of [
+    ["safety-card", "safety-alarm", "alarm"],
+    ["safety-mini-card", "safety-mini-alarm", "alarm"],
+    ["safety-card", "safety-leak", "leak"],
+  ]) {
+    const { hass, config } = setup({ scene, config: { blink: true } });
     const page = await openPage(browser, { theme, width: WIDTH, icons: iconsFor([]), label: `${name}${suffix}` });
     await mountCard(page, { tag, hass, config, dark });
     await page.waitForTimeout(300);

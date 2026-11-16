@@ -184,10 +184,10 @@ type: custom:safety-overview-card
 
 ### Safety
 
-| Maintenance | All clear | Smoke alarm |
-|---|---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance.png" alt="Maintenance" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear.png" alt="All clear" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm.png" alt="Smoke alarm" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance-dark.png" alt="Maintenance, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear-dark.png" alt="All clear, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm-dark.png" alt="Smoke alarm, dark" width="400"> |
+| Maintenance | All clear | Smoke alarm | Water leak |
+|---|---|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance.png" alt="Maintenance" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear.png" alt="All clear" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm.png" alt="Smoke alarm" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak.png" alt="Water leak" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance-dark.png" alt="Maintenance, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear-dark.png" alt="All clear, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm-dark.png" alt="Smoke alarm, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak-dark.png" alt="Water leak, dark" width="400"> |
 
 | One room (`area`) | Large tiles (`layout: tiles`) |
 |---|---|
@@ -196,9 +196,10 @@ type: custom:safety-overview-card
 
 **Alarm animation**: the detectors sounding blink, the banner's icon blinks with them and the header badge pulses (steady with `blink: false`, or when the system asks for reduced motion).
 
-| Light | Dark |
-|---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm.gif" alt="Smoke alarm animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm-dark.gif" alt="Smoke alarm animation, dark" width="400"> |
+| | Light | Dark |
+|---|---|---|
+| Smoke alarm | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm.gif" alt="Smoke alarm animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm-dark.gif" alt="Smoke alarm animation, dark" width="400"> |
+| Water leak | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak.gif" alt="Water leak animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak-dark.gif" alt="Water leak animation, dark" width="400"> |
 
 ### Safety mini
 
@@ -209,10 +210,10 @@ type: custom:safety-overview-card
 
 ### Safety overview
 
-| Rooms needing a look | Every room | A room unfolded | Smoke alarm |
-|---|---|---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-check.png" alt="Overview, rooms needing a look" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-all.png" alt="Overview, every room" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-room.png" alt="Overview, a room unfolded" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-alarm.png" alt="Overview, smoke alarm" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-check-dark.png" alt="Overview, rooms needing a look, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-all-dark.png" alt="Overview, every room, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-room-dark.png" alt="Overview, a room unfolded, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-alarm-dark.png" alt="Overview, smoke alarm, dark" width="400"> |
+| Rooms needing a look | Every room | A room unfolded | Smoke alarm | Water leak |
+|---|---|---|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-check.png" alt="Overview, rooms needing a look" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-all.png" alt="Overview, every room" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-room.png" alt="Overview, a room unfolded" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-alarm.png" alt="Overview, smoke alarm" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-leak.png" alt="Overview, water leak" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-check-dark.png" alt="Overview, rooms needing a look, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-all-dark.png" alt="Overview, every room, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-room-dark.png" alt="Overview, a room unfolded, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-alarm-dark.png" alt="Overview, smoke alarm, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-leak-dark.png" alt="Overview, water leak, dark" width="400"> |
 
 ## How it works
 

@@ -43,6 +43,25 @@ test("discovery: one detector per device, alarm sensors only, diagnostic and oth
   assert.equal(kitchen.state.startsWith("Smoke + Gas"), true, kitchen.state);
 });
 
+test("water leak: a moisture detector is an alarm kind, in alarm when wet", () => {
+  const h = makeHass();
+  h.areas.bathroom = { area_id: "bathroom", name: "Bathroom" };
+  h.devices.d_bath = { area_id: "bathroom", name: "Bathroom leak" };
+  h.entities["binary_sensor.bath_leak"] = { device_id: "d_bath" };
+  h.states["binary_sensor.bath_leak"] = st("binary_sensor.bath_leak", "on", { device_class: "moisture", friendly_name: "Bathroom leak" }, new Date().toISOString());
+  const dry = make("safety-card", {}, h);
+  const d = dry._items.find((i) => i.id === "binary_sensor.bath_leak");
+  assert.ok(d, "leak detector discovered");
+  assert.equal(d.level, "alert");
+  assert.equal(d.state, "Water leak · just now");
+  assert.equal(d.icon, "mdi:water-alert");
+  // Quiet, it shows its own kind and icon.
+  h.states["binary_sensor.bath_leak"] = st("binary_sensor.bath_leak", "off", { device_class: "moisture", friendly_name: "Bathroom leak" });
+  const ok = make("safety-card", {}, h)._items.find((i) => i.id === "binary_sensor.bath_leak");
+  assert.equal(ok.state, "Leak · OK");
+  assert.equal(ok.icon, "mdi:water-check");
+});
+
 test("maintenance: battery under the threshold, end of life, CO level, test and silence buttons", () => {
   const card = make("safety-card", {});
   const by = (area) => card._items.find((i) => i.area === area);

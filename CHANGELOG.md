@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 - 2026-11-16
+
+### Features
+- **Water leak detectors** are now discovered alongside smoke, carbon monoxide and gas: any `moisture` binary sensor (Aqara, Fibaro, Shelly, Zigbee, Z-Wave…) shows as a detector, in red when wet (*Water leak*), with its battery and maintenance read like the others. No configuration needed; `exclude` or `entities` still apply.
+
 ## 1.0.1 - 2026-11-16
 
 ### Fixes

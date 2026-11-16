@@ -1,7 +1,7 @@
 {
   "name": "ha-safety-card",
-  "version": "1.0.1",
-  "description": "Lovelace cards for Home Assistant's smoke, carbon monoxide and gas detectors: alarms first, battery, end of life and test, room by room.",
+  "version": "1.1.0",
+  "description": "Lovelace cards for Home Assistant's smoke, carbon monoxide, gas and water leak detectors: alarms first, battery, end of life and test, room by room.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/juju35/ha-safety-card.git"

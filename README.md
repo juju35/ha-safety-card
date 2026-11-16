@@ -29,7 +29,7 @@
   <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/matter.svg" alt="Matter" height="24">
 </p>
 
-Lovelace cards for Home Assistant's **smoke, carbon monoxide and gas detectors**: an alarm comes first, large, with where and since when; then what needs a look (low battery, end of life, fault, unavailable); then the quiet detectors. Add a card, it finds every detector of the home (or of a room) by itself, whatever the integration.
+Lovelace cards for Home Assistant's **smoke, carbon monoxide, gas and water leak detectors**: an alarm comes first, large, with where and since when; then what needs a look (low battery, end of life, fault, unavailable); then the quiet detectors. Add a card, it finds every detector of the home (or of a room) by itself, whatever the integration.
 
 [![Open your Home Assistant instance and open a repository inside the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-safety-card&category=plugin)
 
@@ -49,7 +49,7 @@ The cards share the look of the other ha-* cards (header with a status pill, com
 
 ### Safety
 
-`custom:safety-card` — The smoke, carbon monoxide and gas detectors of the whole home, or of one room (`area`).
+`custom:safety-card` — The smoke, carbon monoxide, gas and water leak detectors of the whole home, or of one room (`area`).
 
 - **One tile per detector**: a detector is a device, with all its alarm sensors (a smoke + gas detector is one tile, *Smoke + Gas*); an alarm sensor with no device is a detector of its own
 - **Alarm first**: the detector sounding goes to the top, in red, with a blinking icon and how long it has been sounding (*Smoke detected · 2 min*); the header pill names the alarm and its room (*Smoke detected · Kitchen*) and the badge pulses
@@ -79,7 +79,7 @@ The cards share the look of the other ha-* cards (header with a status pill, com
 
 ## Supported integrations
 
-The cards read Home Assistant's own device classes, so any integration that exposes a smoke (`smoke`), carbon monoxide (`carbon_monoxide`) or gas (`gas`) binary sensor works. What else a tile shows depends on what the integration exposes for the device.
+The cards read Home Assistant's own device classes, so any integration that exposes a smoke (`smoke`), carbon monoxide (`carbon_monoxide`), gas (`gas`) or water leak (`moisture`) binary sensor works. What else a tile shows depends on what the integration exposes for the device.
 
 | | Integration | Detectors |
 |:---:|---|---|
@@ -91,6 +91,7 @@ The cards read Home Assistant's own device classes, so any integration that expo
 | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/shelly.svg" alt="Shelly" height="20"> | [Shelly](https://www.home-assistant.io/integrations/shelly/) (built in) | Shelly Plus Smoke |
 | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/somfy.svg" alt="Somfy" height="17"> | [Overkiz](https://www.home-assistant.io/integrations/overkiz/) (built in) | Somfy smoke detectors |
 | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/ajax.svg" alt="Ajax" height="14">&nbsp;<img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/kidde.svg" alt="Kidde" height="20">&nbsp;<img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/x-sense.svg" alt="X-Sense" height="20"> | Ajax, Kidde HomeSafe, X-Sense and other brand integrations | Their smoke, CO and gas detectors |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/aqara.svg" alt="Aqara" height="20">&nbsp;<img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/fibaro.svg" alt="Fibaro" height="20">&nbsp;<img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/images/shelly.svg" alt="Shelly" height="20"> | Aqara, Fibaro, Shelly and other water leak sensors (`moisture`) | Water leak detectors |
 
 The battery, end-of-life, fault, CO level, test and silence entities are only shown when the integration exposes them for the device (see [How it works](#how-it-works)).
 
@@ -183,10 +184,10 @@ type: custom:safety-overview-card
 
 ### Safety
 
-| Maintenance | All clear | Smoke alarm |
-|---|---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance.png" alt="Maintenance" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear.png" alt="All clear" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm.png" alt="Smoke alarm" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance-dark.png" alt="Maintenance, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear-dark.png" alt="All clear, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm-dark.png" alt="Smoke alarm, dark" width="400"> |
+| Maintenance | All clear | Smoke alarm | Water leak |
+|---|---|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance.png" alt="Maintenance" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear.png" alt="All clear" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm.png" alt="Smoke alarm" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak.png" alt="Water leak" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance-dark.png" alt="Maintenance, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear-dark.png" alt="All clear, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm-dark.png" alt="Smoke alarm, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak-dark.png" alt="Water leak, dark" width="400"> |
 
 | One room (`area`) | Large tiles (`layout: tiles`) |
 |---|---|
@@ -195,9 +196,10 @@ type: custom:safety-overview-card
 
 **Alarm animation**: the detectors sounding blink, the banner's icon blinks with them and the header badge pulses (steady with `blink: false`, or when the system asks for reduced motion).
 
-| Light | Dark |
-|---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm.gif" alt="Smoke alarm animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm-dark.gif" alt="Smoke alarm animation, dark" width="400"> |
+| | Light | Dark |
+|---|---|---|
+| Smoke alarm | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm.gif" alt="Smoke alarm animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm-dark.gif" alt="Smoke alarm animation, dark" width="400"> |
+| Water leak | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak.gif" alt="Water leak animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak-dark.gif" alt="Water leak animation, dark" width="400"> |
 
 ### Safety mini
 
@@ -208,14 +210,14 @@ type: custom:safety-overview-card
 
 ### Safety overview
 
-| Rooms needing a look | Every room | A room unfolded | Smoke alarm |
-|---|---|---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-check.png" alt="Overview, rooms needing a look" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-all.png" alt="Overview, every room" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-room.png" alt="Overview, a room unfolded" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-alarm.png" alt="Overview, smoke alarm" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-check-dark.png" alt="Overview, rooms needing a look, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-all-dark.png" alt="Overview, every room, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-room-dark.png" alt="Overview, a room unfolded, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-alarm-dark.png" alt="Overview, smoke alarm, dark" width="400"> |
+| Rooms needing a look | Every room | A room unfolded | Smoke alarm | Water leak |
+|---|---|---|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-check.png" alt="Overview, rooms needing a look" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-all.png" alt="Overview, every room" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-room.png" alt="Overview, a room unfolded" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-alarm.png" alt="Overview, smoke alarm" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-leak.png" alt="Overview, water leak" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-check-dark.png" alt="Overview, rooms needing a look, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-all-dark.png" alt="Overview, every room, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-room-dark.png" alt="Overview, a room unfolded, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-alarm-dark.png" alt="Overview, smoke alarm, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-overview-leak-dark.png" alt="Overview, water leak, dark" width="400"> |
 
 ## How it works
 
-- **Discovery**: every visible `binary_sensor` with the `smoke`, `carbon_monoxide` or `gas` device class (configuration and diagnostic entities left out), in the card's area or anywhere in the home; `include` adds others, `exclude` leaves some out, `entities` replaces the discovery
+- **Discovery**: every visible `binary_sensor` with the `smoke`, `carbon_monoxide`, `gas` or `moisture` (water leak) device class (configuration and diagnostic entities left out), in the card's area or anywhere in the home; `include` adds others, `exclude` leaves some out, `entities` replaces the discovery
 - **Detectors**: the alarm sensors are grouped by device; the device's other entities give the battery (`battery` sensor or binary sensor), the maintenance needs (`problem` binary sensors: end of life when its name says so, a fault otherwise), the carbon monoxide level (`carbon_monoxide` sensor) and the test and silence buttons (`button` entities, from their name)
 - **Levels**: an active alarm sensor is an alarm (red); a detector that cannot report, a low battery, an end of life or a fault needs a look (orange); everything else is fine (green)
 - **Actions**: a tap on a tile opens the alarm sensor's dialog; **Silence** and **Test all** press the devices' own buttons (`button.press`), nothing else

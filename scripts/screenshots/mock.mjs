@@ -1,4 +1,4 @@
-// The mock home of the screenshots and animations: six rooms, one detector each.
+// The mock home of the screenshots and animations: seven rooms, one detector each (a water leak sensor in the bathroom).
 const ago = (min) => new Date(Date.now() - min * 60000).toISOString();
 const AREAS = {
   living: "Living room",
@@ -7,6 +7,7 @@ const AREAS = {
   bedroom: "Bedroom",
   kids: "Kids room",
   garage: "Garage",
+  bathroom: "Bathroom",
 };
 // [device, area, alarm sensors, battery %, extras]
 const DETECTORS = [
@@ -16,11 +17,12 @@ const DETECTORS = [
   ["d_bed", "bedroom", ["smoke"], 71, { eol: true, test: true }],
   ["d_kids", "kids", ["smoke"], 88, { test: true }],
   ["d_garage", "garage", ["co"], 64, { ppm: 2 }],
+  ["d_bath", "bathroom", ["leak"], 76, {}],
 ];
-const DC = { smoke: "smoke", co: "carbon_monoxide", gas: "gas" };
+const DC = { smoke: "smoke", co: "carbon_monoxide", gas: "gas", leak: "moisture" };
 
 // `scene`: "maintenance" (a low battery, an end of life), "clear" (nothing to do), "alarm" (smoke in the kitchen, the
-// living room sounding too).
+// living room sounding too), "leak" (water in the bathroom).
 export const setup = (s) => {
   const states = {};
   const entities = {};
@@ -32,8 +34,9 @@ export const setup = (s) => {
   for (const [device, area, kinds, battery, x] of DETECTORS) {
     devices[device] = { area_id: area, name: `${AREAS[area]} detector` };
     for (const kind of kinds) {
-      const sounding = s.scene === "alarm" && ((area === "kitchen" && kind === "smoke") || (area === "living" && kind === "smoke"));
-      add(`binary_sensor.${area}_${kind}`, device, sounding ? "on" : "off", { device_class: DC[kind], friendly_name: `${AREAS[area]} ${kind}` }, sounding ? ago(area === "kitchen" ? 2 : 1) : ago(600));
+      const smoke = s.scene === "alarm" && kind === "smoke" && (area === "kitchen" || area === "living");
+      const sounding = smoke || (s.scene === "leak" && kind === "leak");
+      add(`binary_sensor.${area}_${kind}`, device, sounding ? "on" : "off", { device_class: DC[kind], friendly_name: `${AREAS[area]} ${kind}` }, sounding ? ago(area === "living" ? 1 : 2) : ago(600));
     }
     const low = s.scene === "clear" && battery < 20 ? 85 : battery;
     add(`sensor.${area}_battery`, device, String(low), { device_class: "battery", unit_of_measurement: "%" });

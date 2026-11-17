@@ -4,6 +4,7 @@
 
 ### Features
 - **Illustrated header** on the safety card and the safety mini card (90 px on both): an animated hallway on a parquet strip, the title and the status on the wall at the left, the detectors drawn big at the right. The scene follows the state of the home: all clear, smoke, carbon monoxide, gas, water leak, low battery or another maintenance need. The icon badge is coloured by the status, day and night. Night follows `sun.sun` (else the dark mode) or `illustration_theme: day | night`; `illustration: false` keeps the classic header. Animations stop with `blink: false` (alarm ones) or when the system asks for reduced motion. Both options are in the visual editors.
+- On the illustrated header the status is a pill right after the title (the alarm, the count to check or all clear, in the status colour; under the subtitle on a narrow card, only its dot below 200 px); the subtitle names the detectors sounding or needing a look. The mini card's zoom button is a small round frosted button in the top right corner of the banner.
 
 ## 1.1.0 - 2026-11-16
 

@@ -149,20 +149,47 @@ const SC_SCENE_STYLE = `
   .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 10px;
             background: repeating-linear-gradient(90deg, #c99a6b 0 38px, #b98a5c 38px 40px); box-shadow: inset 0 2px 0 #a97c50; }
   .night .ground { background: repeating-linear-gradient(90deg, #4a3a2c 0 38px, #3e3024 38px 40px); box-shadow: inset 0 2px 0 #5c4836; }
-  .hero .htext { position: absolute; left: 12px; top: 6px; bottom: 16px; right: 196px; display: flex; align-items: center; gap: 10px; min-width: 0; flex-wrap: nowrap; }
+  .hero .htext { position: absolute; left: 12px; top: 6px; bottom: 16px; right: 152px; display: flex; align-items: center; gap: 10px; min-width: 0; flex-wrap: nowrap; }
+  /* The text runs over the faded left of the scene (its mask fades it in from x 0 to 90). */
   .hero .htext::after { content: none; }
   .hero .badge { position: relative; background: rgba(255,255,255,.72); box-shadow: 0 0 0 1px rgba(60,50,40,.14), 0 1px 3px rgba(60,50,40,.16); }
   .hero.night .badge { background: rgba(255,255,255,.12); box-shadow: 0 0 0 1px rgba(255,255,255,.14); }
-  .hero .titles { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-  .hero .title { flex: none; min-width: 0; color: inherit; font-weight: 600; line-height: 1.25; }
-  .hero .sub { font-size: 13px; line-height: 17px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-               color: color-mix(in srgb, var(--c) 55%, #2a2620); }
-  .hero.night .sub { color: color-mix(in srgb, var(--c) 45%, #fff); }
+  .hero .titles { flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 2px; }
+  .hero .titles > * { flex: 1 0 100%; min-width: 0; }
+  /* The title, then its status pill 8 px after it, centred on it: the title ellipsises first but keeps about 4
+     characters (48 px); the pill keeps its whole label (at most about 60 % of the line). */
+  .hero .trow { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .hero .title { flex: 0 1 auto; min-width: 48px; color: inherit; font-weight: 600; line-height: 1.25;
+                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hero .hpill { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; max-width: 62%; min-width: 0; box-sizing: border-box;
+                 padding: 1px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; line-height: 16px; white-space: nowrap; overflow: hidden;
+                 background: color-mix(in srgb, var(--c) 18%, rgba(255,255,255,.78)); color: color-mix(in srgb, var(--c) 45%, #0d2a45); }
+  .hero.night .hpill { background: color-mix(in srgb, var(--c) 30%, rgba(8,18,38,.55)); color: color-mix(in srgb, var(--c) 35%, #ffffff); }
+  .hero .hpill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
+  .hero .hpill .pt { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .hero .sub { font-size: 12px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #5b5346; }
+  .hero.night .sub { color: rgba(255,255,255,.78); }
   :host([hide-title]) .hero .title { display: none; }
-  .hero .zoom { position: absolute; top: 6px; right: 6px; margin: 0; width: 32px; height: 32px; color: #2a2620; background: rgba(255,255,255,.55); }
-  .hero.night .zoom { color: #fff; background: rgba(20,20,30,.45); }
+  /* A narrow card: the title takes its whole line, the pill goes under the subtitle. */
+  @container (min-width: 201px) and (max-width: 260px) {
+    .hero .trow { display: contents; }
+    .hero .title { flex: 1 0 100%; }
+    .hero .sub { order: 1; }
+    .hero .hpill { order: 2; max-width: 100%; }
+  }
+  /* Narrower still: only the pill's coloured dot, on the title line (its text stays its tooltip and label). */
+  @container (max-width: 200px) {
+    .hero .hpill { padding: 5px; }
+    .hero .hpill .pt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  }
+  /* The zoom button of the mini card: round, frosted, in the top right corner of the banner. */
+  .hero .zoom { position: absolute; z-index: 2; top: 5px; right: 5px; margin: 0; width: 24px; height: 24px; border-radius: 50%;
+                color: #33506b; background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7); backdrop-filter: blur(4px); }
+  .hero .zoom:hover { background: rgba(255,255,255,.75); color: #33506b; }
+  .hero.night .zoom { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+  .hero.night .zoom:hover { background: rgba(255,255,255,.22); color: #fff; }
   /* Narrow card: no room for the scene beside the text, the wall alone stays. */
-  @container (max-width: 300px) { .sc-scene { display: none; } .hero .htext { right: 44px; } }
+  @container (max-width: 300px) { .sc-scene { display: none; } .hero .htext { right: 36px; } }
   .sc-frame { fill: #e2dccf; } .sc-door { fill: #fff; } .sc-knob { fill: #c9b9a0; }
   .night .sc-frame { fill: #3a3a48; } .night .sc-door { fill: #4a4a58; } .night .sc-knob { fill: #6b6b7c; }
   .sc-det { fill: #fff; stroke: #c9ced6; stroke-width: .5; } .sc-det-base { fill: #d9dde3; }
@@ -398,13 +425,21 @@ class SafetyCard extends RcCard {
     const nav = c.navigation_path;
     this._uid ??= ++scUidNext;
     const scene = scSceneState(v, items);
+    // The status pill after the title: the alarm alone, the count to check or all clear; the subtitle names the
+    // detectors (their room on a home-wide card) sounding or needing a look.
+    const pill = v.alarms.length ? this._t(v.top) : v.status;
+    const named = v.alarms.length ? v.alarms : items.filter((i) => i.level === "warn");
+    const sub = [...new Set(named.map((i) => i.name))].join(", ");
     return `
       <div class="hero sc-${scene}${this._night() ? " night" : ""}">
         ${scSceneSvg(scene, this._uid)}
         <div class="ground" aria-hidden="true"></div>
         <div class="head htext${nav ? " nav" : ""}"${nav ? ' role="link" tabindex="0"' : ""}>
           <div class="badge" title="${rcEsc(v.status)}"><ha-icon icon="${rcEsc(v.icon)}"></ha-icon></div>
-          <div class="titles"><div class="title">${rcEsc(title)}</div><div class="sub" title="${rcEsc(v.status)}">${rcEsc(v.status)}</div></div>
+          <div class="titles">
+            <div class="trow"><div class="title">${rcEsc(title)}</div><span class="hpill" title="${rcEsc(v.status)}" aria-label="${rcEsc(v.status)}"><span class="dot"></span><span class="pt">${rcEsc(pill)}</span></span></div>
+            ${sub ? `<div class="sub" title="${rcEsc(sub)}">${rcEsc(sub)}</div>` : ""}
+          </div>
         </div>
       </div>`;
   }
@@ -580,7 +615,7 @@ class SafetyMiniCard extends rcMini(
     else this._paintMini({ level: v.level, icon: v.icon, status: v.status, chips, cls });
     // An alarm is announced on the compact view too, once when it starts or changes.
     const key = v.alarms.length ? JSON.stringify(v.alarms.map((i) => [i.id, i.top])) : null;
-    if (key && key !== this._announced) this.shadowRoot.querySelector(".mini .st, .hero .sub")?.setAttribute?.("role", "alert");
+    if (key && key !== this._announced) this.shadowRoot.querySelector(".mini .st, .hero .hpill")?.setAttribute?.("role", "alert");
     this._announced = key;
   }
 

@@ -21,13 +21,13 @@ const scSceneState = (sum, items) => {
   return sum.level;
 };
 
-// Night picture: forced by illustration_theme, else the sun below the horizon or Home Assistant's dark mode (a dark
-// theme takes the night picture even while the sun is up; an unknown sun leaves the dark mode alone to decide).
+// Night picture: forced by illustration_theme, else Home Assistant's dark mode alone (a light theme keeps the day
+// picture after sunset).
 const scIsNight = (hass, config) => {
   const theme = config.illustration_theme;
   if (theme === "night") return true;
   if (theme === "day") return false;
-  return hass?.states?.["sun.sun"]?.state === "below_horizon" || !!hass?.themes?.darkMode;
+  return !!hass?.themes?.darkMode;
 };
 
 // The kinds of detector among the card's detectors, in SC_KINDS order.
@@ -459,7 +459,7 @@ class SafetyCard extends RcCard {
     return this._config.illustration !== false;
   }
 
-  // Night picture or not, part of the redraw signature (the sun sets while the card is shown); null without a picture.
+  // Night picture or not, part of the redraw signature (the theme can change while the card is shown); null without a picture.
   _night() {
     return this._illustrated() ? scIsNight(this._hass, this._config) : null;
   }

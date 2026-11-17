@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1 - 2026-11-18
+
+### Fixes
+- The illustrated header draws only the kinds of detector the card shows: a lone water leak sensor gets its pipe and floor sensor, without the ceiling smoke detector; quiet carbon monoxide and gas detectors sit on the wall. With a maintenance need, only the detector concerned lights amber and the bubble points at it.
+
 ## 1.2.0 - 2026-11-17
 
 ### Features

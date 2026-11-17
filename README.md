@@ -193,10 +193,10 @@ type: custom:safety-overview-card
 | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance.png" alt="Maintenance" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear.png" alt="All clear" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm.png" alt="Smoke alarm" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak.png" alt="Water leak" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-maintenance-dark.png" alt="Maintenance, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-clear-dark.png" alt="All clear, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-alarm-dark.png" alt="Smoke alarm, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak-dark.png" alt="Water leak, dark" width="400"> |
 
-| One room (`area`) | Large tiles (`layout: tiles`) |
-|---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-room.png" alt="One room" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-tiles.png" alt="Large tiles" width="320"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-room-dark.png" alt="One room, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-tiles-dark.png" alt="Large tiles, dark" width="320"> |
+| One room (`area`) | A water leak sensor alone | Large tiles (`layout: tiles`) |
+|---|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-room.png" alt="One room" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak-only.png" alt="A water leak sensor alone" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-tiles.png" alt="Large tiles" width="320"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-room-dark.png" alt="One room, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-leak-only-dark.png" alt="A water leak sensor alone, dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-safety-card/main/screenshots/safety-tiles-dark.png" alt="Large tiles, dark" width="320"> |
 
 **Alarm animation**: the detectors sounding blink, the banner's icon blinks with them and the header badge pulses (steady with `blink: false`, or when the system asks for reduced motion).
 

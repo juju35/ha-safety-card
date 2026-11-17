@@ -10,7 +10,9 @@
 // banner is the wall alone, under the title. The detectors are drawn big and change with the state of the home:
 // all clear (green light), smoke (cloud, red light, alarm rings), CO (boiler, CO detector, amber air), gas (cooker, gas
 // detector, fumes), water leak (pipe, drips, puddle, floor sensor), battery low or another maintenance need (amber
-// light, a bubble). Its colours come from classes, so that night only switches a class on the banner.
+// light, a bubble). Only the kinds of detector the card shows are drawn: a home with a single leak sensor gets the
+// pipe and the floor sensor, no ceiling smoke detector. Its colours come from classes, so that night only switches a
+// class on the banner.
 
 // Scene of a summary: the alarm's kind, a maintenance need, all clear, or no detector.
 const scSceneState = (sum, items) => {
@@ -28,12 +30,18 @@ const scIsNight = (hass, config) => {
   return hass?.states?.["sun.sun"]?.state === "below_horizon" || !!hass?.themes?.darkMode;
 };
 
+// The kinds of detector among the card's detectors, in SC_KINDS order.
+const scKindsOf = (items) => SC_KINDS.filter((k) => items.some((i) => i.kinds?.includes(k)));
+
 let scUidNext = 0;
 
+// A quiet detector's light: amber and blinking for the one needing a look (the scene's --led), green for the others.
+const scLedCls = (s, kind, warn) => (s === "battery" || s === "check" ? (kind === warn ? "sc-led sc-blink" : "sc-led ok") : "sc-led");
+
 // The ceiling smoke detector, 73 px wide, its light coloured by the scene (--led).
-const scCeilingDetector = (s, uid) => {
+const scCeilingDetector = (s, uid, warn) => {
   const alarm = s === "smoke";
-  const blink = ["smoke", "battery", "check"].includes(s);
+  const led = alarm ? "sc-led sc-blink" : scLedCls(s, "smoke", warn);
   const ring = (d) => `<circle class="sc-ping${d}" cx="0" cy="5.6" r="3" />`;
   return `<g transform="translate(112 6)">
       ${alarm ? `<circle class="sc-glow" cx="0" cy="10" r="38" fill="url(#sc-glow-${uid})"/>` : ""}
@@ -41,7 +49,7 @@ const scCeilingDetector = (s, uid) => {
         <rect class="sc-det-base" x="-9" y="-1" width="18" height="1.6" rx=".4"/>
         <path class="sc-det" d="M-13 0H13V3.4C13 6 6.5 7.4 0 7.4S-13 6 -13 3.4Z"/>
         <path class="sc-det-vent" d="M-9 3.6H-5M-3 4.4H3M5 3.6H9"/>
-        <circle class="sc-led${blink ? " sc-blink" : ""}" cx="0" cy="5.6" r="1.5"/>
+        <circle class="${led}" cx="0" cy="5.6" r="1.5"/>
         ${alarm ? ring("") + ring(" d2") : ""}
       </g>
     </g>`;
@@ -108,31 +116,69 @@ const scLeak = () => `<path class="sc-wpipe" d="M200 30H136a4 4 0 0 0-4 4v4"/>
       <circle class="sc-blink sc-led-red" cx="5" cy="-5.6" r="1.6"/>
     </g>`;
 
+// The quiet detectors (all clear or a maintenance need) of the kinds the card shows, other than the ceiling smoke one:
+// the CO and gas detectors on the wall (the one needing a look the rightmost, by the bubble), the leak sensor on the
+// floor under its pipe.
+const scWallBoxes = (kinds, warn) => {
+  const wall = kinds.filter((k) => k === "co" || k === "gas").sort((a, b) => (a === warn) - (b === warn));
+  return wall.map((k, i) => [k, 98 - 28 * (wall.length - 1 - i)]);
+};
+const scQuiet = (s, kinds, warn) => {
+  const box = ([k, x]) => `<g transform="translate(${x} 50)">
+      <rect class="sc-box" x="-13" y="-13" width="26" height="26" rx="5"/>
+      ${
+        k === "co"
+          ? `<text class="sc-co calm" y="3.6" text-anchor="middle">CO</text>`
+          : `<path class="sc-gas-ic calm" d="M0 7.5c-4.6 0-7-3-7-6.4 0-4.4 4.2-6.8 4.6-11.1 2.4 1.6 3.4 4 3.2 6.2 1.4-.7 2.2-2 2.4-3.4 2.4 2.2 3.8 5 3.8 8.2 0 3.6-2.6 6.5-7 6.5z"/>`
+      }
+      <circle class="${scLedCls(s, k, warn)}" cx="8" cy="-7.5" r="1.8"/>
+    </g>`;
+  const leak = kinds.includes("leak")
+    ? `<path class="sc-wpipe" d="M200 30H136a4 4 0 0 0-4 4v4"/>
+    <rect class="sc-wjoint" x="128.5" y="36" width="7" height="4" rx="1"/>
+    <g transform="translate(142 78) scale(1.35)">
+      <path class="sc-puck" d="M-12 -1V-5.5C-12 -8 -6 -9.4 0 -9.4S12 -8 12 -5.5V-1C12 1.4 6 2.6 0 2.6S-12 1.4-12-1Z"/>
+      <ellipse class="sc-puck-top calm" cx="0" cy="-5.6" rx="12" ry="3.6"/>
+      <circle class="${scLedCls(s, "leak", warn)}" cx="5" cy="-5.6" r="1.6"/>
+    </g>`
+    : "";
+  return leak + scWallBoxes(kinds, warn).map(box).join("");
+};
+
+// Where the maintenance bubble points at the detector needing a look: beside the ceiling detector, right of the wall
+// detector, above the floor sensor (upside down).
+const scBubbleAt = (warn) => {
+  if (warn === "leak") return { x: 138, y: 52, flip: true };
+  if (warn === "co" || warn === "gas") return { x: 120, y: 50 };
+  return { x: 144, y: 44 };
+};
+
 // Maintenance: a bubble beside the detector, a low battery (battery) or an exclamation mark (fault, end of life,
 // unavailable), with the detector's chirp.
-const scBubble = (s) => `<g transform="translate(144 44)">
-      <path class="sc-chirp" d="M-8 -20q4 2 3 6M-4 -23q6 3 5 9"/>
-      <path class="sc-bubble" d="M-6 -9H2L-4 -15V-9H22a4 4 0 0 1 4 4V7a4 4 0 0 1-4 4H-6a4 4 0 0 1-4-4V-5a4 4 0 0 1 4-4Z"/>
-      ${
+const scBubble = (s, at) => `<g transform="translate(${at.x} ${at.y})">
+      ${at.flip ? "" : `<path class="sc-chirp" d="M-8 -20q4 2 3 6M-4 -23q6 3 5 9"/>`}
+      <path class="sc-bubble"${at.flip ? ' transform="scale(1 -1)"' : ""} d="M-6 -9H2L-4 -15V-9H22a4 4 0 0 1 4 4V7a4 4 0 0 1-4 4H-6a4 4 0 0 1-4-4V-5a4 4 0 0 1 4-4Z"/>
+      <g${at.flip ? ' transform="translate(0 -2)"' : ""}>${
         s === "battery"
           ? `<rect class="sc-batt" x="-2" y="-3" width="20" height="9" rx="1.6"/><rect class="sc-batt-tip" x="18" y="-.4" width="2.2" height="3.8" rx=".6"/><rect class="sc-batt-low sc-blink" x="0" y="-1" width="4" height="5" rx=".6"/>`
           : `<text class="sc-excl" x="8" y="6" text-anchor="middle">!</text>`
-      }
+      }</g>
     </g>`;
 
 const SC_SCENE_PARTS = { smoke: scSmoke, co: scCo, gas: scGas, leak: scLeak };
 
-// The whole picture for a scene state. `uid` keeps each card's gradient apart on a page with several cards.
-const scSceneSvg = (s, uid) => `<svg class="sc-scene" viewBox="0 0 200 80" preserveAspectRatio="xMaxYMax meet" aria-hidden="true" focusable="false">
+// The whole picture for a scene state, with the kinds of detector shown and the kind of the one needing a look. `uid`
+// keeps each card's gradient apart on a page with several cards. No detector at all: the ceiling one, greyed.
+const scSceneSvg = (s, uid, kinds = [], warn) => `<svg class="sc-scene" viewBox="0 0 200 80" preserveAspectRatio="xMaxYMax meet" aria-hidden="true" focusable="false">
     <defs>
       <radialGradient id="sc-glow-${uid}"><stop offset="0" stop-color="#e5484d" stop-opacity=".45"/><stop offset="1" stop-color="#e5484d" stop-opacity="0"/></radialGradient>
       <linearGradient id="sc-fadeg-${uid}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="90" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>
       <mask id="sc-fade-${uid}" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="80"><rect width="200" height="80" fill="url(#sc-fadeg-${uid})"/></mask>
     </defs>
     ${scDoor(32)}${scDoor(188)}
-    ${SC_SCENE_PARTS[s]?.(uid) ?? ""}
-    ${s === "battery" || s === "check" ? scBubble(s) : ""}
-    ${scCeilingDetector(s, uid)}
+    ${SC_SCENE_PARTS[s] ? SC_SCENE_PARTS[s](uid) : scQuiet(s, kinds, warn)}
+    ${s === "battery" || s === "check" ? scBubble(s, scBubbleAt(warn)) : ""}
+    ${s === "smoke" || !kinds.length || kinds.includes("smoke") ? scCeilingDetector(s, uid, warn) : ""}
   </svg>`;
 
 // The banner: the scene, the ground strip, the title and the status on the wall at the left.
@@ -194,7 +240,7 @@ const SC_SCENE_STYLE = `
   .sc-det { fill: #fff; stroke: #c9ced6; stroke-width: .5; } .sc-det-base { fill: #d9dde3; }
   .sc-det-vent { stroke: #c9ced6; stroke-width: .5; fill: none; stroke-linecap: round; }
   .night .sc-det { fill: #d8dce2; stroke: #9aa3ae; } .night .sc-det-base { fill: #9aa3ae; }
-  .sc-led { fill: var(--led); } .night .sc-led { filter: drop-shadow(0 0 1.2px var(--led)); }
+  .sc-led { fill: var(--led); } .sc-led.ok { fill: #43c463; } .night .sc-led { filter: drop-shadow(0 0 1.2px var(--led)); }
   .sc-none .sc-det { opacity: .75; }
   .sc-ping { fill: none; stroke: #e5484d; stroke-width: 1.1; transform-box: fill-box; transform-origin: center; animation: sc-ping 2s ease-out infinite; }
   .sc-ping.amber { stroke: #f5b400; }
@@ -212,7 +258,7 @@ const SC_SCENE_STYLE = `
   .sc-box { fill: #fff; stroke: #c9ced6; } .night .sc-box { fill: #d8dce2; stroke: #9aa3ae; }
   .sc-co { font: 700 10px/1 Roboto, Arial, sans-serif; fill: #d68f00; }
   .sc-led-amber { fill: #f5b400; } .sc-led-red { fill: #e5484d; }
-  .sc-gas-ic { fill: #e5484d; }
+  .sc-gas-ic { fill: #e5484d; } .sc-gas-ic.calm { fill: #9aa3ae; } .sc-co.calm { fill: #9aa3ae; }
   .sc-cooker { fill: #f4f5f7; stroke: #c9ced6; } .sc-hob { fill: #5d6570; } .sc-oven { fill: #2c3034; } .sc-knob2 { fill: #9aa3ae; }
   .night .sc-cooker { fill: #3d4248; stroke: #5a6068; }
   .sc-fume { fill: none; stroke: #8fb83a; stroke-width: 1.6; stroke-linecap: round; opacity: 0; animation: sc-rise 2.4s ease-out infinite; }
@@ -220,7 +266,7 @@ const SC_SCENE_STYLE = `
   .sc-wpipe { fill: none; stroke: #9aa3ae; stroke-width: 4; } .sc-wjoint { fill: #7d8894; }
   .sc-drip { fill: #4fb3e8; animation: sc-drip 1.6s ease-in infinite; } .sc-drip.d2 { animation-delay: -.8s; }
   .sc-puddle { fill: #4fb3e8; opacity: .55; transform-box: fill-box; transform-origin: center; animation: sc-spread 2.4s ease-in-out infinite; }
-  .sc-puck { fill: #fff; stroke: #c9ced6; stroke-width: .6; } .sc-puck-top { fill: #fff; stroke: #e5484d; stroke-width: .9; }
+  .sc-puck { fill: #fff; stroke: #c9ced6; stroke-width: .6; } .sc-puck-top { fill: #fff; stroke: #e5484d; stroke-width: .9; } .sc-puck-top.calm { stroke: #c9ced6; stroke-width: .6; }
   .night .sc-puck, .night .sc-puck-top { fill: #d8dce2; }
   .sc-bubble { fill: #fff; stroke: #f5b400; stroke-width: 1; } .night .sc-bubble { fill: #3a3b46; }
   .sc-batt { fill: none; stroke: #5d6570; stroke-width: 1.2; } .sc-batt-tip { fill: #5d6570; } .sc-batt-low { fill: #e5484d; }
@@ -347,6 +393,7 @@ class SafetyCard extends RcCard {
         return {
           ...r,
           id: (r.active[0] || d.alarms[0]).id,
+          kinds: [...new Set(d.alarms.map((a) => a.kind))],
           top,
           on: r.level !== "ok",
           unavailable: false,
@@ -424,6 +471,7 @@ class SafetyCard extends RcCard {
     const nav = c.navigation_path;
     this._uid ??= ++scUidNext;
     const scene = scSceneState(v, items);
+    const warn = items.find((i) => i.level === "warn")?.kinds[0];
     // The status pill after the title: the alarm alone, the count to check or all clear; the subtitle names the
     // detectors (their room on a home-wide card) sounding or needing a look.
     const pill = v.alarms.length ? this._t(v.top) : v.status;
@@ -431,7 +479,7 @@ class SafetyCard extends RcCard {
     const sub = [...new Set(named.map((i) => i.name))].join(", ");
     return `
       <div class="hero sc-${scene}${this._night() ? " night" : ""}">
-        ${scSceneSvg(scene, this._uid)}
+        ${scSceneSvg(scene, this._uid, scKindsOf(items), warn)}
         <div class="ground" aria-hidden="true"></div>
         <div class="head htext${nav ? " nav" : ""}"${nav ? ' role="link" tabindex="0"' : ""}>
           <div class="badge" title="${rcEsc(v.status)}"><ha-icon icon="${rcEsc(v.icon)}"></ha-icon></div>

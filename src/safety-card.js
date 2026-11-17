@@ -4,6 +4,215 @@
  * https://github.com/juju35/ha-safety-card
  */
 
+// ── Illustration ─────────────────────────────────────────────────────────────
+// The header's picture: a hallway (wall, ceiling, two doors) at the right of a 90 px banner, on a 10 px parquet strip
+// that runs under the whole banner. The 200 × 80 scene sits on the strip at 1:1, its floor at y 80; the left of the
+// banner is the wall alone, under the title. The detectors are drawn big and change with the state of the home:
+// all clear (green light), smoke (cloud, red light, alarm rings), CO (boiler, CO detector, amber air), gas (cooker, gas
+// detector, fumes), water leak (pipe, drips, puddle, floor sensor), battery low or another maintenance need (amber
+// light, a bubble). Its colours come from classes, so that night only switches a class on the banner.
+
+// Scene of a summary: the alarm's kind, a maintenance need, all clear, or no detector.
+const scSceneState = (sum, items) => {
+  if (sum.level === "alert") return sum.top;
+  if (sum.level === "warn") return items.some((i) => i.level === "warn" && !i.unavailable && scWarnKey(i) === "battery") ? "battery" : "check";
+  return sum.level;
+};
+
+// Night picture: forced by illustration_theme, else the sun below the horizon, else Home Assistant's dark mode.
+const scIsNight = (hass, config) => {
+  const theme = config.illustration_theme;
+  if (theme === "night") return true;
+  if (theme === "day") return false;
+  const sun = hass?.states?.["sun.sun"];
+  if (sun && !rcUnavailable(sun)) return sun.state === "below_horizon";
+  return !!hass?.themes?.darkMode;
+};
+
+let scUidNext = 0;
+
+// The ceiling smoke detector, 73 px wide, its light coloured by the scene (--led).
+const scCeilingDetector = (s, uid) => {
+  const alarm = s === "smoke";
+  const blink = ["smoke", "battery", "check"].includes(s);
+  const ring = (d) => `<circle class="sc-ping${d}" cx="0" cy="5.6" r="3" />`;
+  return `<g transform="translate(112 6)">
+      ${alarm ? `<circle class="sc-glow" cx="0" cy="10" r="38" fill="url(#sc-glow-${uid})"/>` : ""}
+      <g transform="scale(2.8)">
+        <rect class="sc-det-base" x="-9" y="-1" width="18" height="1.6" rx=".4"/>
+        <path class="sc-det" d="M-13 0H13V3.4C13 6 6.5 7.4 0 7.4S-13 6 -13 3.4Z"/>
+        <path class="sc-det-vent" d="M-9 3.6H-5M-3 4.4H3M5 3.6H9"/>
+        <circle class="sc-led${blink ? " sc-blink" : ""}" cx="0" cy="5.6" r="1.5"/>
+        ${alarm ? ring("") + ring(" d2") : ""}
+      </g>
+    </g>`;
+};
+
+const scDoor = (x) =>
+  `<g transform="translate(${x} 80)"><rect class="sc-frame" x="-13" y="-58" width="26" height="58"/><rect class="sc-door" x="-10.5" y="-55.5" width="21" height="55.5"/><circle class="sc-knob" cx="6.5" cy="-27" r="1.3"/></g>`;
+
+// Smoke: a cloud around the ceiling detector, drifting.
+const scSmoke = () =>
+  `<g class="sc-smoke">${[
+    [86, 34, 12],
+    [104, 30, 15],
+    [130, 32, 16],
+    [118, 48, 17],
+    [94, 52, 11],
+    [150, 46, 13],
+  ]
+    .map(([x, y, r], i) => `<circle class="sc-puff p${i % 3}" cx="${x}" cy="${y}" r="${r}"/>`)
+    .join("")}</g>`;
+
+// CO: the boiler on the wall, the CO detector beside it, the air tinted amber.
+const scCo = (uid) => `<rect class="sc-haze co" x="0" y="6" width="200" height="74" mask="url(#sc-fade-${uid})"/>
+    <g transform="translate(76 0)">
+      <path class="sc-pipe" d="M-6 64V80M6 64V80"/>
+      <rect class="sc-boiler" x="-15" y="24" width="30" height="40" rx="3"/>
+      <rect class="sc-boiler-win" x="-6" y="40" width="12" height="12" rx="2"/>
+      <path class="sc-flame" d="M0 51q-4.5-3.5 0-9.5q4.5 6 0 9.5z"/>
+      <circle class="sc-boiler-dial" cx="0" cy="31" r="3"/>
+    </g>
+    <g transform="translate(152 48)">
+      <circle class="sc-ping amber" cx="0" cy="0" r="6"/>
+      <rect class="sc-box" x="-13" y="-13" width="26" height="26" rx="5"/>
+      <text class="sc-co" y="3.6" text-anchor="middle">CO</text>
+      <circle class="sc-blink sc-led-amber" cx="8" cy="-7.5" r="1.8"/>
+    </g>`;
+
+// Gas: the cooker, its fumes, the gas detector on the wall above.
+const scGas = (uid) => `<rect class="sc-haze gas" x="0" y="6" width="200" height="74" mask="url(#sc-fade-${uid})"/>
+    <g transform="translate(146 80)">
+      <rect class="sc-cooker" x="-26" y="-36" width="52" height="36" rx="2"/>
+      <rect class="sc-hob" x="-27" y="-38" width="54" height="3" rx="1"/>
+      <rect class="sc-oven" x="-19" y="-26" width="38" height="20" rx="2"/>
+      <circle class="sc-knob2" cx="-14" cy="-31" r="2"/><circle class="sc-knob2" cx="-5" cy="-31" r="2"/><circle class="sc-knob2" cx="4" cy="-31" r="2"/><circle class="sc-knob2" cx="13" cy="-31" r="2"/>
+      <path class="sc-fume f0" d="M-12 -42q-4 -5 0 -10t0 -10"/><path class="sc-fume f1" d="M2 -42q-4 -5 0 -10t0 -10"/><path class="sc-fume f2" d="M14 -42q-4 -5 0 -10t0 -10"/>
+    </g>
+    <g transform="translate(88 40)">
+      <circle class="sc-ping" cx="0" cy="0" r="6"/>
+      <rect class="sc-box" x="-13" y="-13" width="26" height="26" rx="5"/>
+      <path class="sc-gas-ic" d="M0 7.5c-4.6 0-7-3-7-6.4 0-4.4 4.2-6.8 4.6-11.1 2.4 1.6 3.4 4 3.2 6.2 1.4-.7 2.2-2 2.4-3.4 2.4 2.2 3.8 5 3.8 8.2 0 3.6-2.6 6.5-7 6.5z"/>
+      <circle class="sc-blink sc-led-red" cx="8" cy="-7.5" r="1.8"/>
+    </g>`;
+
+// Water leak: a pipe on the wall dripping, the puddle spreading, the leak sensor on the floor in red.
+const scLeak = () => `<path class="sc-wpipe" d="M200 30H136a4 4 0 0 0-4 4v4"/>
+    <rect class="sc-wjoint" x="128.5" y="36" width="7" height="4" rx="1"/>
+    <path class="sc-drip" d="M132 42q-3 4 0 6q3-2 0-6z"/>
+    <path class="sc-drip d2" d="M132 42q-3 4 0 6q3-2 0-6z"/>
+    <ellipse class="sc-puddle" cx="134" cy="78" rx="38" ry="4"/>
+    <g transform="translate(142 78) scale(1.35)">
+      <circle class="sc-ping" cx="0" cy="-3" r="5"/>
+      <path class="sc-puck" d="M-12 -1V-5.5C-12 -8 -6 -9.4 0 -9.4S12 -8 12 -5.5V-1C12 1.4 6 2.6 0 2.6S-12 1.4-12-1Z"/>
+      <ellipse class="sc-puck-top" cx="0" cy="-5.6" rx="12" ry="3.6"/>
+      <circle class="sc-blink sc-led-red" cx="5" cy="-5.6" r="1.6"/>
+    </g>`;
+
+// Maintenance: a bubble beside the detector, a low battery (battery) or an exclamation mark (fault, end of life,
+// unavailable), with the detector's chirp.
+const scBubble = (s) => `<g transform="translate(144 44)">
+      <path class="sc-chirp" d="M-8 -20q4 2 3 6M-4 -23q6 3 5 9"/>
+      <path class="sc-bubble" d="M-6 -9H2L-4 -15V-9H22a4 4 0 0 1 4 4V7a4 4 0 0 1-4 4H-6a4 4 0 0 1-4-4V-5a4 4 0 0 1 4-4Z"/>
+      ${
+        s === "battery"
+          ? `<rect class="sc-batt" x="-2" y="-3" width="20" height="9" rx="1.6"/><rect class="sc-batt-tip" x="18" y="-.4" width="2.2" height="3.8" rx=".6"/><rect class="sc-batt-low sc-blink" x="0" y="-1" width="4" height="5" rx=".6"/>`
+          : `<text class="sc-excl" x="8" y="6" text-anchor="middle">!</text>`
+      }
+    </g>`;
+
+const SC_SCENE_PARTS = { smoke: scSmoke, co: scCo, gas: scGas, leak: scLeak };
+
+// The whole picture for a scene state. `uid` keeps each card's gradient apart on a page with several cards.
+const scSceneSvg = (s, uid) => `<svg class="sc-scene" viewBox="0 0 200 80" preserveAspectRatio="xMaxYMax meet" aria-hidden="true" focusable="false">
+    <defs>
+      <radialGradient id="sc-glow-${uid}"><stop offset="0" stop-color="#e5484d" stop-opacity=".45"/><stop offset="1" stop-color="#e5484d" stop-opacity="0"/></radialGradient>
+      <linearGradient id="sc-fadeg-${uid}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="90" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>
+      <mask id="sc-fade-${uid}" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="80"><rect width="200" height="80" fill="url(#sc-fadeg-${uid})"/></mask>
+    </defs>
+    ${scDoor(32)}${scDoor(188)}
+    ${SC_SCENE_PARTS[s]?.(uid) ?? ""}
+    ${s === "battery" || s === "check" ? scBubble(s) : ""}
+    ${scCeilingDetector(s, uid)}
+  </svg>`;
+
+// The banner: the scene, the ground strip, the title and the status on the wall at the left.
+const SC_SCENE_STYLE = `
+  .hero { position: relative; overflow: hidden; height: 90px; margin: -12px -12px 0; color: #2a2620;
+          --led: #43c463; --wall: #f2efe9; --ceil: #e6e1d8;
+          background: linear-gradient(var(--ceil) 0 6px, var(--wall) 6px); }
+  .hero.night { color: #fff; --wall: #2a2b33; --ceil: #33343e; }
+  .hero.sc-battery, .hero.sc-check, .hero.sc-co { --led: #f5b400; }
+  .hero.sc-smoke { --led: #e5484d; }
+  .hero.sc-none { --led: #9aa3ae; }
+  .sc-scene { position: absolute; right: 0; bottom: 10px; width: 200px; height: 80px; overflow: visible; }
+  .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 10px;
+            background: repeating-linear-gradient(90deg, #c99a6b 0 38px, #b98a5c 38px 40px); box-shadow: inset 0 2px 0 #a97c50; }
+  .night .ground { background: repeating-linear-gradient(90deg, #4a3a2c 0 38px, #3e3024 38px 40px); box-shadow: inset 0 2px 0 #5c4836; }
+  .hero .htext { position: absolute; left: 12px; top: 6px; bottom: 16px; right: 196px; display: flex; align-items: center; gap: 10px; min-width: 0; flex-wrap: nowrap; }
+  .hero .htext::after { content: none; }
+  .hero .badge { position: relative; background: rgba(255,255,255,.72); box-shadow: 0 0 0 1px rgba(60,50,40,.14), 0 1px 3px rgba(60,50,40,.16); }
+  .hero.night .badge { background: rgba(255,255,255,.12); box-shadow: 0 0 0 1px rgba(255,255,255,.14); }
+  .hero .titles { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .hero .title { flex: none; min-width: 0; color: inherit; font-weight: 600; line-height: 1.25; }
+  .hero .sub { font-size: 13px; line-height: 17px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+               color: color-mix(in srgb, var(--c) 55%, #2a2620); }
+  .hero.night .sub { color: color-mix(in srgb, var(--c) 45%, #fff); }
+  :host([hide-title]) .hero .title { display: none; }
+  .hero .zoom { position: absolute; top: 6px; right: 6px; margin: 0; width: 32px; height: 32px; color: #2a2620; background: rgba(255,255,255,.55); }
+  .hero.night .zoom { color: #fff; background: rgba(20,20,30,.45); }
+  /* Narrow card: no room for the scene beside the text, the wall alone stays. */
+  @container (max-width: 300px) { .sc-scene { display: none; } .hero .htext { right: 44px; } }
+  .sc-frame { fill: #e2dccf; } .sc-door { fill: #fff; } .sc-knob { fill: #c9b9a0; }
+  .night .sc-frame { fill: #3a3a48; } .night .sc-door { fill: #4a4a58; } .night .sc-knob { fill: #6b6b7c; }
+  .sc-det { fill: #fff; stroke: #c9ced6; stroke-width: .5; } .sc-det-base { fill: #d9dde3; }
+  .sc-det-vent { stroke: #c9ced6; stroke-width: .5; fill: none; stroke-linecap: round; }
+  .night .sc-det { fill: #d8dce2; stroke: #9aa3ae; } .night .sc-det-base { fill: #9aa3ae; }
+  .sc-led { fill: var(--led); } .night .sc-led { filter: drop-shadow(0 0 1.2px var(--led)); }
+  .sc-none .sc-det { opacity: .75; }
+  .sc-ping { fill: none; stroke: #e5484d; stroke-width: 1.1; transform-box: fill-box; transform-origin: center; animation: sc-ping 2s ease-out infinite; }
+  .sc-ping.amber { stroke: #f5b400; }
+  .sc-ping.d2 { animation-delay: -1s; }
+  .sc-glow { animation: sc-pulse 1.6s ease-in-out infinite; }
+  .sc-blink { animation: sc-blink 1.2s steps(2) infinite; }
+  .sc-puff { fill: #b4b2a9; opacity: .6; animation: sc-drift 4s ease-in-out infinite; }
+  .sc-puff.p1 { animation-delay: -1.3s; } .sc-puff.p2 { animation-delay: -2.6s; }
+  .night .sc-puff { fill: #6a6f7a; }
+  .sc-haze { opacity: .16; animation: sc-pulse 3s ease-in-out infinite; } .sc-haze.co { fill: #f5b400; } .sc-haze.gas { fill: #9ccc3c; }
+  .sc-boiler { fill: #fff; stroke: #c9ced6; } .sc-boiler-win { fill: #2c3034; } .sc-boiler-dial { fill: #e8eef3; stroke: #9aa3ae; stroke-width: .7; }
+  .sc-pipe { stroke: #9aa3ae; stroke-width: 2.4; fill: none; }
+  .night .sc-boiler { fill: #3d4248; stroke: #5a6068; } .night .sc-boiler-dial { fill: #2c3034; }
+  .sc-flame { fill: #ef9f27; transform-box: fill-box; transform-origin: 50% 100%; animation: sc-flicker .9s ease-in-out infinite alternate; }
+  .sc-box { fill: #fff; stroke: #c9ced6; } .night .sc-box { fill: #d8dce2; stroke: #9aa3ae; }
+  .sc-co { font: 700 10px/1 Roboto, Arial, sans-serif; fill: #d68f00; }
+  .sc-led-amber { fill: #f5b400; } .sc-led-red { fill: #e5484d; }
+  .sc-gas-ic { fill: #e5484d; }
+  .sc-cooker { fill: #f4f5f7; stroke: #c9ced6; } .sc-hob { fill: #5d6570; } .sc-oven { fill: #2c3034; } .sc-knob2 { fill: #9aa3ae; }
+  .night .sc-cooker { fill: #3d4248; stroke: #5a6068; }
+  .sc-fume { fill: none; stroke: #8fb83a; stroke-width: 1.6; stroke-linecap: round; opacity: 0; animation: sc-rise 2.4s ease-out infinite; }
+  .sc-fume.f1 { animation-delay: -.8s; } .sc-fume.f2 { animation-delay: -1.6s; }
+  .sc-wpipe { fill: none; stroke: #9aa3ae; stroke-width: 4; } .sc-wjoint { fill: #7d8894; }
+  .sc-drip { fill: #4fb3e8; animation: sc-drip 1.6s ease-in infinite; } .sc-drip.d2 { animation-delay: -.8s; }
+  .sc-puddle { fill: #4fb3e8; opacity: .55; transform-box: fill-box; transform-origin: center; animation: sc-spread 2.4s ease-in-out infinite; }
+  .sc-puck { fill: #fff; stroke: #c9ced6; stroke-width: .6; } .sc-puck-top { fill: #fff; stroke: #e5484d; stroke-width: .9; }
+  .night .sc-puck, .night .sc-puck-top { fill: #d8dce2; }
+  .sc-bubble { fill: #fff; stroke: #f5b400; stroke-width: 1; } .night .sc-bubble { fill: #3a3b46; }
+  .sc-batt { fill: none; stroke: #5d6570; stroke-width: 1.2; } .sc-batt-tip { fill: #5d6570; } .sc-batt-low { fill: #e5484d; }
+  .night .sc-batt { stroke: #c9ced6; } .night .sc-batt-tip { fill: #c9ced6; }
+  .sc-excl { font: 700 13px/1 Roboto, Arial, sans-serif; fill: #d68f00; }
+  .sc-chirp { fill: none; stroke: #f5b400; stroke-width: 1.1; stroke-linecap: round; animation: sc-blink 1.2s steps(2) infinite; }
+  @keyframes sc-ping { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
+  @keyframes sc-pulse { 50% { opacity: .35; } }
+  @keyframes sc-blink { 50% { opacity: .15; } }
+  @keyframes sc-drift { 50% { transform: translate(-4px, 2px); } }
+  @keyframes sc-flicker { from { transform: scaleY(.8); } to { transform: scaleY(1.1); } }
+  @keyframes sc-rise { 0% { opacity: 0; transform: translateY(4px); } 30% { opacity: .8; } 100% { opacity: 0; transform: translateY(-8px); } }
+  @keyframes sc-drip { from { transform: translateY(0); opacity: 1; } to { transform: translateY(28px); opacity: 0; } }
+  @keyframes sc-spread { 50% { transform: scaleX(1.1); } }
+  .no-blink .sc-blink, .no-blink .sc-ping, .no-blink .sc-glow, .no-blink .sc-chirp { animation: none; }
+  @media (prefers-reduced-motion: reduce) { .hero * { animation: none !important; } }
+`;
+
 // ── Card ─────────────────────────────────────────────────────────────────────
 class SafetyCard extends RcCard {
   static tag = "safety-card";
@@ -18,6 +227,8 @@ class SafetyCard extends RcCard {
     test_button: true,
     blink: true,
     battery_threshold: 20,
+    illustration: true,
+    illustration_theme: "auto",
     exclude: [],
   };
 
@@ -161,12 +372,41 @@ class SafetyCard extends RcCard {
 
   _draw(items) {
     const c = this._config;
-    const v = this._visible(items, [this._armed, this._parts(items)]);
+    const v = this._visible(items, [this._armed, this._parts(items), this._night()]);
     if (!v) return;
     if (!v.alarms.length) this._announced = null;
     const tiles = v.shown.map((i) => this._tile(i, { cls: ` ${i.level}`, state: rcEsc(i.state) })).join("");
-    const head = this._head({ icon: v.icon, title: c.title || this._areaName() || this._t("title"), status: v.status });
-    this._paint(v.level, head + (c.banner !== false ? this._banner(v.alarms) : ""), tiles, c.blink === false ? " no-blink" : "");
+    const title = c.title || this._areaName() || this._t("title");
+    const head = this._illustrated() ? this._hero(v, items, title) : this._head({ icon: v.icon, title, status: v.status });
+    this._paint(v.level, head + (c.banner !== false ? this._banner(v.alarms) : ""), tiles, `${c.blink === false ? " no-blink" : ""}${this._illustrated() ? " ill" : ""}`);
+  }
+
+  // The illustrated header is on unless `illustration: false` (the classic header then).
+  _illustrated() {
+    return this._config.illustration !== false;
+  }
+
+  // Night picture or not, part of the redraw signature (the sun sets while the card is shown); null without a picture.
+  _night() {
+    return this._illustrated() ? scIsNight(this._hass, this._config) : null;
+  }
+
+  // The banner: the hallway for the state of the home, the icon (coloured by the status) with the title and the status
+  // on the wall at its left. Its `.head` is the navigation target, like the classic header.
+  _hero(v, items, title) {
+    const c = this._config;
+    const nav = c.navigation_path;
+    this._uid ??= ++scUidNext;
+    const scene = scSceneState(v, items);
+    return `
+      <div class="hero sc-${scene}${this._night() ? " night" : ""}">
+        ${scSceneSvg(scene, this._uid)}
+        <div class="ground" aria-hidden="true"></div>
+        <div class="head htext${nav ? " nav" : ""}"${nav ? ' role="link" tabindex="0"' : ""}>
+          <div class="badge" title="${rcEsc(v.status)}"><ha-icon icon="${rcEsc(v.icon)}"></ha-icon></div>
+          <div class="titles"><div class="title">${rcEsc(title)}</div><div class="sub" title="${rcEsc(v.status)}">${rcEsc(v.status)}</div></div>
+        </div>
+      </div>`;
   }
 
   // The alarm, large, under the header: what and where, since when, the other detectors sounding, and its actions.
@@ -261,6 +501,7 @@ class SafetyCard extends RcCard {
     .act-test.armed ha-icon { color: var(--rc-warn); }
     .no-blink .tile.alert .ic, .no-blink .big, .no-blink.lvl-alert .badge { animation: none; }
     @media (prefers-reduced-motion: reduce) { .tile.alert .ic, .big { animation: none; } }
+    ${SC_SCENE_STYLE}
   `;
 }
 
@@ -275,7 +516,7 @@ const scExcludeField = (card, hass, config) => {
   return rcEntitiesField("exclude", ids);
 };
 
-const SC_CARD_HELPERS = ["area", "title", "layout", "test_button", "include", "exclude", ...RC_ADVANCED_HELPERS];
+const SC_CARD_HELPERS = ["area", "title", "layout", "illustration", "illustration_theme", "test_button", "include", "exclude", ...RC_ADVANCED_HELPERS];
 
 // The fields of both editors: `extra` holds the full card's own booleans, `zoom` the mini card's.
 const scSchema = (card, booleans) => (lang, hass, config) => [
@@ -285,6 +526,7 @@ const scSchema = (card, booleans) => (lang, hass, config) => [
   { name: "columns", selector: { number: { min: 1, max: 4, mode: "box" } } },
   rcLayoutField(SC_I18N, lang),
   ...rcBooleans(...booleans),
+  { name: "illustration_theme", selector: { select: { mode: "dropdown", options: ["auto", "day", "night"].map((value) => ({ value, label: rcT(SC_I18N, lang, `theme_${value}`) })) } } },
   { name: "battery_threshold", selector: { number: { min: 5, max: 50, step: 5, mode: "slider", unit_of_measurement: "%" } } },
   ...rcIncludeField(card, hass, config),
   ...scExcludeField(card, hass, config),
@@ -294,7 +536,7 @@ const scSchema = (card, booleans) => (lang, hass, config) => [
 const SafetyCardEditor = rcEditor({
   card: SafetyCard,
   helpers: SC_CARD_HELPERS,
-  schema: scSchema(SafetyCard, ["show_title", "only_alerts", "hide_when_clear", "banner", "test_button", "blink"]),
+  schema: scSchema(SafetyCard, ["show_title", "illustration", "only_alerts", "hide_when_clear", "banner", "test_button", "blink"]),
 });
 
 rcRegister(
@@ -316,11 +558,14 @@ class SafetyMiniCard extends rcMini(
     .r.alert ha-icon { animation: rc-blink 1.5s ease-in-out infinite; }
     .no-blink .r.alert ha-icon { animation: none; }
     @media (prefers-reduced-motion: reduce) { .r.alert ha-icon { animation: none; } }
+    ha-card.mini-ill { padding: 0; }
+    .mini-ill .hero { margin: 0; }
+    .mini-ill .rs { margin: 0; padding: 6px 12px 10px 8px; }
   `,
   { alertsOnly: true },
 ) {
   _drawMini(items) {
-    const v = this._visible(items, ["mini", this._parts(items)]);
+    const v = this._visible(items, ["mini", this._parts(items), this._night()]);
     if (!v) return;
     const chips = v.shown
       .map(
@@ -330,18 +575,39 @@ class SafetyMiniCard extends rcMini(
         </button>`,
       )
       .join("");
-    this._paintMini({ level: v.level, icon: v.icon, status: v.status, chips, cls: this._config.blink === false ? " no-blink" : "" });
+    const cls = this._config.blink === false ? " no-blink" : "";
+    if (this._illustrated()) this._paintHero(v, items, chips, cls);
+    else this._paintMini({ level: v.level, icon: v.icon, status: v.status, chips, cls });
     // An alarm is announced on the compact view too, once when it starts or changes.
     const key = v.alarms.length ? JSON.stringify(v.alarms.map((i) => [i.id, i.top])) : null;
-    if (key && key !== this._announced) this.shadowRoot.querySelector(".mini .st")?.setAttribute?.("role", "alert");
+    if (key && key !== this._announced) this.shadowRoot.querySelector(".mini .st, .hero .sub")?.setAttribute?.("role", "alert");
     this._announced = key;
+  }
+
+  // The compact view with the illustration: the full card's banner (same height), then the chips under it.
+  _paintHero(v, items, chips, cls) {
+    const c = this._config;
+    this.shadowRoot.innerHTML = `
+      <style>${RC_BASE_STYLES}${this.constructor.styles}</style>
+      <ha-card class="lvl-${v.level}${cls} ill mini-ill">
+        ${this._hero(v, items, c.title || this._areaName() || this._t("title"))}
+        <div class="rs">${chips}</div>
+      </ha-card>`;
+    const root = this.shadowRoot;
+    if (c.navigation_path) rcBindNav(root.querySelector(".head"), c.navigation_path);
+    for (const el of root.querySelectorAll(".r")) el.addEventListener("click", () => rcMoreInfo(this, el.dataset.id));
+  }
+
+  // On the banner, the zoom button sits at its top right corner.
+  _zoomHost() {
+    return this.shadowRoot.querySelector(".hero") || super._zoomHost();
   }
 }
 
 const SafetyMiniCardEditor = rcEditor({
   card: SafetyMiniCard,
   helpers: [...SC_CARD_HELPERS, "zoom"],
-  schema: scSchema(SafetyMiniCard, ["show_title", "hide_when_clear", "test_button", "blink", "zoom"]),
+  schema: scSchema(SafetyMiniCard, ["show_title", "illustration", "hide_when_clear", "test_button", "blink", "zoom"]),
 });
 
 rcRegister(

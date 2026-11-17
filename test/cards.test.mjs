@@ -313,3 +313,19 @@ test("the action buttons keep the keyboard focus through a redraw (data-k)", () 
   const card = make("safety-card", {}, withAlarm());
   assert.match(html(card), /act-silence" data-k="silence"|act-details" data-k="details"/);
 });
+
+test("night picture: the sun below the horizon or the dark theme, even while the sun is up; illustration_theme wins", () => {
+  const sky = (state, darkMode = false) => {
+    const h = makeHass({ themes: { darkMode } });
+    h.states = { ...h.states, "sun.sun": st("sun.sun", state) };
+    return h;
+  };
+  for (const tag of ["safety-card", "safety-mini-card"]) {
+    assert.equal(make(tag, {}, sky("above_horizon", true))._night(), true, `${tag}: dark theme by day`);
+    assert.equal(make(tag, {}, sky("above_horizon"))._night(), false, `${tag}: light theme by day`);
+    assert.equal(make(tag, {}, sky("below_horizon"))._night(), true, `${tag}: sun down`);
+    assert.equal(make(tag, {}, sky("unavailable", true))._night(), true, `${tag}: unknown sun, dark theme`);
+    assert.equal(make(tag, { illustration_theme: "day" }, sky("below_horizon", true))._night(), false, `${tag}: forced day`);
+    assert.equal(make(tag, { illustration_theme: "night" }, sky("above_horizon"))._night(), true, `${tag}: forced night`);
+  }
+});

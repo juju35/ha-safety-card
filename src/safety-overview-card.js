@@ -203,15 +203,11 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
       .hchips { flex: none; display: flex; align-items: center; gap: inherit; }
       @container (max-width: 420px) {
         .head { gap: 6px; flex-wrap: wrap; }
-        /* The chips go under the title; the pill and the zoom stay on the title's row. */
+        /* The chips go under the title; the zoom stays on the title's row, and so does the pill while it fits whole
+           beside the whole title (else, measured by the card, it goes under the chips). */
         .hchips { order: 2; flex: 1 0 100%; flex-wrap: wrap; box-sizing: border-box; padding-left: 46px; }
         .head > .pill, .head > .zoom { order: 1; }
-        /* The pill shrinks (and ellipsises) before the zoom would wrap to a line of its own. */
-        .head > .pill { max-width: calc(100% - 136px); }
-      }
-      @container (max-width: 260px) {
-        .head::after { content: none; }
-        .head > .pill { order: 0; margin-left: 0; max-width: none; }
+        .head[data-wrap] > .pill { order: 3; }
       }
       .room { --t: var(--rc-idle); }
       .room.lvl-warn  { --t: var(--rc-warn); }

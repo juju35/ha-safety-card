@@ -155,12 +155,13 @@ const SC_SCENE_STYLE = `
   .hero.night .badge { background: rgba(255,255,255,.12); box-shadow: 0 0 0 1px rgba(255,255,255,.14); }
   .hero .titles { flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 2px; }
   .hero .titles > * { flex: 1 0 100%; min-width: 0; }
-  /* The title, then its status pill 8 px after it, centred on it: the title ellipsises first but keeps about 4
-     characters (48 px); the pill keeps its whole label (at most about 60 % of the line). */
+  /* The title, then its status pill 8 px after it, centred on it, while the whole title and the pill's whole label fit
+     on that row; otherwise (measured by the card, see _fitPill) the pill on its own line under the subtitle
+     (data-wrap), and its dot alone (data-dot) when even then the text would run into the floor strip. */
   .hero .trow { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .hero .title { flex: 0 1 auto; min-width: 48px; color: inherit; font-weight: 600; line-height: 1.25;
+  .hero .title { flex: 0 1 auto; min-width: 0; color: inherit; font-weight: 600; line-height: 1.25;
                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hero .hpill { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; max-width: 62%; min-width: 0; box-sizing: border-box;
+  .hero .hpill { flex: none; display: inline-flex; align-items: center; gap: 4px; max-width: none; min-width: 0; box-sizing: border-box;
                  padding: 1px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; line-height: 16px; white-space: nowrap; overflow: hidden;
                  background: color-mix(in srgb, var(--c) 18%, rgba(255,255,255,.78)); color: color-mix(in srgb, var(--c) 45%, #0d2a45); }
   .hero.night .hpill { background: color-mix(in srgb, var(--c) 30%, rgba(8,18,38,.55)); color: color-mix(in srgb, var(--c) 35%, #ffffff); }
@@ -169,13 +170,12 @@ const SC_SCENE_STYLE = `
   .hero .sub { font-size: 12px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #5b5346; }
   .hero.night .sub { color: rgba(255,255,255,.78); }
   :host([hide-title]) .hero .title { display: none; }
-  /* A narrow card: the title takes its whole line, the pill goes under the subtitle. */
-  @container (min-width: 201px) and (max-width: 260px) {
-    .hero .trow { display: contents; }
-    .hero .title { flex: 1 0 100%; }
-    .hero .sub { order: 1; }
-    .hero .hpill { order: 2; max-width: 100%; }
-  }
+  .hero[data-wrap] .trow { display: contents; }
+  .hero[data-wrap] .title { flex: 1 0 100%; }
+  .hero[data-wrap] .sub { order: 1; }
+  .hero[data-wrap] .hpill { order: 2; max-width: 100%; }
+  .hero[data-dot] .hpill { padding: 5px; }
+  .hero[data-dot] .hpill .pt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   /* Narrower still: only the pill's coloured dot, on the title line (its text stays its tooltip and label). */
   @container (max-width: 200px) {
     .hero .hpill { padding: 5px; }

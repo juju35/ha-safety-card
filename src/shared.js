@@ -1474,6 +1474,13 @@ const SC_I18N = {
     ed_include_helper: "Detectors from another room, or with no room",
     ed_exclude_helper: "Detectors the card leaves out",
     other_room: "Other",
+    ed_illustration: "Illustration",
+    ed_illustration_helper: "An animated hallway in the header that shows the state of the detectors",
+    ed_illustration_theme: "Illustration theme",
+    ed_illustration_theme_helper: "Auto: night when the sun is down (sun.sun) or in dark mode",
+    theme_auto: "Automatic (sun or dark theme)",
+    theme_day: "Day",
+    theme_night: "Night",
   },
   fr: {
     title: "Sécurité",
@@ -1515,6 +1522,13 @@ const SC_I18N = {
     ed_include_helper: "Détecteurs d'une autre pièce, ou sans pièce",
     ed_exclude_helper: "Détecteurs que la carte laisse de côté",
     other_room: "Autres",
+    ed_illustration: "Illustration",
+    ed_illustration_helper: "Un couloir animé dans l'en-tête qui montre l'état des détecteurs",
+    ed_illustration_theme: "Thème de l'illustration",
+    ed_illustration_theme_helper: "Auto : nuit quand le soleil est couché (sun.sun) ou en mode sombre",
+    theme_auto: "Automatique (soleil ou thème sombre)",
+    theme_day: "Jour",
+    theme_night: "Nuit",
   },
   de: {
     title: "Sicherheit",
@@ -1556,6 +1570,13 @@ const SC_I18N = {
     ed_include_helper: "Melder aus einem anderen Raum oder ohne Raum",
     ed_exclude_helper: "Melder, die die Karte auslässt",
     other_room: "Sonstige",
+    ed_illustration: "Illustration",
+    ed_illustration_helper: "Ein animierter Flur in der Kopfzeile, der den Zustand der Melder zeigt",
+    ed_illustration_theme: "Illustrationsthema",
+    ed_illustration_theme_helper: "Auto: Nacht, wenn die Sonne untergegangen ist (sun.sun) oder im dunklen Modus",
+    theme_auto: "Automatisch (Sonne oder dunkles Design)",
+    theme_day: "Tag",
+    theme_night: "Nacht",
   },
   es: {
     title: "Seguridad",
@@ -1597,6 +1618,13 @@ const SC_I18N = {
     ed_include_helper: "Detectores de otra estancia, o sin estancia",
     ed_exclude_helper: "Detectores que la tarjeta deja fuera",
     other_room: "Otros",
+    ed_illustration: "Ilustración",
+    ed_illustration_helper: "Un pasillo animado en la cabecera que muestra el estado de los detectores",
+    ed_illustration_theme: "Tema de la ilustración",
+    ed_illustration_theme_helper: "Auto: noche cuando el sol se ha puesto (sun.sun) o en modo oscuro",
+    theme_auto: "Automático (sol o tema oscuro)",
+    theme_day: "Día",
+    theme_night: "Noche",
   },
   sr: {
     title: "Безбедност",
@@ -1638,6 +1666,13 @@ const SC_I18N = {
     ed_include_helper: "Детектори из друге просторије или без просторије",
     ed_exclude_helper: "Детектори које картица изоставља",
     other_room: "Остало",
+    ed_illustration: "Илустрација",
+    ed_illustration_helper: "Анимирани ходник у заглављу који приказује стање детектора",
+    ed_illustration_theme: "Тема илустрације",
+    ed_illustration_theme_helper: "Аутоматски: ноћ када је сунце зашло (sun.sun) или у тамном режиму",
+    theme_auto: "Аутоматски (сунце или тамна тема)",
+    theme_day: "Дан",
+    theme_night: "Ноћ",
   },
   "sr-Latn": {
     title: "Bezbednost",
@@ -1679,6 +1714,13 @@ const SC_I18N = {
     ed_include_helper: "Detektori iz druge prostorije ili bez prostorije",
     ed_exclude_helper: "Detektori koje kartica izostavlja",
     other_room: "Ostalo",
+    ed_illustration: "Ilustracija",
+    ed_illustration_helper: "Animirani hodnik u zaglavlju koji prikazuje stanje detektora",
+    ed_illustration_theme: "Tema ilustracije",
+    ed_illustration_theme_helper: "Automatski: noć kada je sunce zašlo (sun.sun) ili u tamnom režimu",
+    theme_auto: "Automatski (sunce ili tamna tema)",
+    theme_day: "Dan",
+    theme_night: "Noć",
   },
   it: {
     title: "Sicurezza",
@@ -1720,6 +1762,13 @@ const SC_I18N = {
     ed_include_helper: "Rilevatori di un'altra stanza, o senza stanza",
     ed_exclude_helper: "Rilevatori che la scheda tralascia",
     other_room: "Altro",
+    ed_illustration: "Illustrazione",
+    ed_illustration_helper: "Un corridoio animato nell'intestazione che mostra lo stato dei rilevatori",
+    ed_illustration_theme: "Tema dell'illustrazione",
+    ed_illustration_theme_helper: "Auto: notte quando il sole è tramontato (sun.sun) o in modalità scura",
+    theme_auto: "Automatico (sole o tema scuro)",
+    theme_day: "Giorno",
+    theme_night: "Notte",
   },
   nl: {
     title: "Veiligheid",
@@ -1761,6 +1810,13 @@ const SC_I18N = {
     ed_include_helper: "Melders uit een andere ruimte, of zonder ruimte",
     ed_exclude_helper: "Melders die de kaart weglaat",
     other_room: "Overig",
+    ed_illustration: "Illustratie",
+    ed_illustration_helper: "Een geanimeerde gang in de kop die de toestand van de melders toont",
+    ed_illustration_theme: "Illustratiethema",
+    ed_illustration_theme_helper: "Auto: nacht als de zon onder is (sun.sun) of in donkere modus",
+    theme_auto: "Automatisch (zon of donker thema)",
+    theme_day: "Dag",
+    theme_night: "Nacht",
   },
   pt: {
     title: "Segurança",
@@ -1802,6 +1858,13 @@ const SC_I18N = {
     ed_include_helper: "Detetores de outra divisão, ou sem divisão",
     ed_exclude_helper: "Detetores que o cartão deixa de fora",
     other_room: "Outros",
+    ed_illustration: "Ilustração",
+    ed_illustration_helper: "Um corredor animado no cabeçalho que mostra o estado dos detetores",
+    ed_illustration_theme: "Tema da ilustração",
+    ed_illustration_theme_helper: "Auto: noite quando o sol se pôs (sun.sun) ou no modo escuro",
+    theme_auto: "Automático (sol ou tema escuro)",
+    theme_day: "Dia",
+    theme_night: "Noite",
   },
   pl: {
     title: "Bezpieczeństwo",
@@ -1843,6 +1906,13 @@ const SC_I18N = {
     ed_include_helper: "Czujki z innego pomieszczenia lub bez pomieszczenia",
     ed_exclude_helper: "Czujki pomijane przez kartę",
     other_room: "Inne",
+    ed_illustration: "Ilustracja",
+    ed_illustration_helper: "Animowany korytarz w nagłówku pokazujący stan czujek",
+    ed_illustration_theme: "Motyw ilustracji",
+    ed_illustration_theme_helper: "Auto: noc, gdy słońce zaszło (sun.sun) lub w trybie ciemnym",
+    theme_auto: "Automatycznie (słońce lub ciemny motyw)",
+    theme_day: "Dzień",
+    theme_night: "Noc",
   },
   ro: {
     title: "Siguranță",
@@ -1884,6 +1954,13 @@ const SC_I18N = {
     ed_include_helper: "Detectoare din altă cameră sau fără cameră",
     ed_exclude_helper: "Detectoare pe care cardul le omite",
     other_room: "Altele",
+    ed_illustration: "Ilustrație",
+    ed_illustration_helper: "Un hol animat în antet care arată starea detectoarelor",
+    ed_illustration_theme: "Tema ilustrației",
+    ed_illustration_theme_helper: "Auto: noapte când soarele a apus (sun.sun) sau în modul întunecat",
+    theme_auto: "Automat (soare sau temă întunecată)",
+    theme_day: "Zi",
+    theme_night: "Noapte",
   },
   da: {
     title: "Sikkerhed",
@@ -1925,6 +2002,13 @@ const SC_I18N = {
     ed_include_helper: "Alarmer fra et andet rum eller uden rum",
     ed_exclude_helper: "Alarmer, som kortet udelader",
     other_room: "Andet",
+    ed_illustration: "Illustration",
+    ed_illustration_helper: "En animeret gang i overskriften, der viser detektorernes tilstand",
+    ed_illustration_theme: "Illustrationstema",
+    ed_illustration_theme_helper: "Auto: nat når solen er nede (sun.sun) eller i mørk tilstand",
+    theme_auto: "Automatisk (sol eller mørkt tema)",
+    theme_day: "Dag",
+    theme_night: "Nat",
   },
   sv: {
     title: "Säkerhet",
@@ -1966,6 +2050,13 @@ const SC_I18N = {
     ed_include_helper: "Larm från ett annat rum eller utan rum",
     ed_exclude_helper: "Larm som kortet utelämnar",
     other_room: "Övrigt",
+    ed_illustration: "Illustration",
+    ed_illustration_helper: "En animerad hall i sidhuvudet som visar detektorernas läge",
+    ed_illustration_theme: "Illustrationstema",
+    ed_illustration_theme_helper: "Auto: natt när solen har gått ner (sun.sun) eller i mörkt läge",
+    theme_auto: "Automatiskt (sol eller mörkt tema)",
+    theme_day: "Dag",
+    theme_night: "Natt",
   },
   bg: {
     title: "Безопасност",
@@ -2007,6 +2098,13 @@ const SC_I18N = {
     ed_include_helper: "Детектори от друга стая или без стая",
     ed_exclude_helper: "Детектори, които картата пропуска",
     other_room: "Други",
+    ed_illustration: "Илюстрация",
+    ed_illustration_helper: "Анимиран коридор в заглавието, който показва състоянието на детекторите",
+    ed_illustration_theme: "Тема на илюстрацията",
+    ed_illustration_theme_helper: "Авто: нощ, когато слънцето е залязло (sun.sun) или в тъмен режим",
+    theme_auto: "Автоматично (слънце или тъмна тема)",
+    theme_day: "Ден",
+    theme_night: "Нощ",
   },
   ru: {
     title: "Безопасность",
@@ -2048,6 +2146,13 @@ const SC_I18N = {
     ed_include_helper: "Датчики из другой комнаты или без комнаты",
     ed_exclude_helper: "Датчики, которые карточка пропускает",
     other_room: "Прочее",
+    ed_illustration: "Иллюстрация",
+    ed_illustration_helper: "Анимированный коридор в заголовке, показывающий состояние датчиков",
+    ed_illustration_theme: "Тема иллюстрации",
+    ed_illustration_theme_helper: "Авто: ночь, когда солнце зашло (sun.sun) или в тёмном режиме",
+    theme_auto: "Автоматически (солнце или тёмная тема)",
+    theme_day: "День",
+    theme_night: "Ночь",
   },
   uk: {
     title: "Безпека",
@@ -2089,6 +2194,13 @@ const SC_I18N = {
     ed_include_helper: "Датчики з іншої кімнати або без кімнати",
     ed_exclude_helper: "Датчики, які картка пропускає",
     other_room: "Інше",
+    ed_illustration: "Ілюстрація",
+    ed_illustration_helper: "Анімований коридор у заголовку, що показує стан датчиків",
+    ed_illustration_theme: "Тема ілюстрації",
+    ed_illustration_theme_helper: "Авто: ніч, коли сонце зайшло (sun.sun) або в темному режимі",
+    theme_auto: "Автоматично (сонце або темна тема)",
+    theme_day: "День",
+    theme_night: "Ніч",
   },
   hu: {
     title: "Biztonság",
@@ -2130,6 +2242,13 @@ const SC_I18N = {
     ed_include_helper: "Érzékelők másik helyiségből vagy helyiség nélkül",
     ed_exclude_helper: "Érzékelők, amelyeket a kártya kihagy",
     other_room: "Egyéb",
+    ed_illustration: "Illusztráció",
+    ed_illustration_helper: "Animált előszoba a fejlécben, amely az érzékelők állapotát mutatja",
+    ed_illustration_theme: "Illusztráció témája",
+    ed_illustration_theme_helper: "Auto: éjszaka, ha a nap lement (sun.sun), vagy sötét módban",
+    theme_auto: "Automatikus (nap vagy sötét téma)",
+    theme_day: "Nappal",
+    theme_night: "Éjszaka",
   },
   sk: {
     title: "Bezpečnosť",
@@ -2171,6 +2290,13 @@ const SC_I18N = {
     ed_include_helper: "Hlásiče z inej miestnosti alebo bez miestnosti",
     ed_exclude_helper: "Hlásiče, ktoré karta vynecháva",
     other_room: "Ostatné",
+    ed_illustration: "Ilustrácia",
+    ed_illustration_helper: "Animovaná chodba v hlavičke, ktorá ukazuje stav detektorov",
+    ed_illustration_theme: "Téma ilustrácie",
+    ed_illustration_theme_helper: "Auto: noc, keď slnko zapadlo (sun.sun) alebo v tmavom režime",
+    theme_auto: "Automaticky (slnko alebo tmavá téma)",
+    theme_day: "Deň",
+    theme_night: "Noc",
   },
   cs: {
     title: "Bezpečnost",
@@ -2212,6 +2338,13 @@ const SC_I18N = {
     ed_include_helper: "Hlásiče z jiné místnosti nebo bez místnosti",
     ed_exclude_helper: "Hlásiče, které karta vynechává",
     other_room: "Ostatní",
+    ed_illustration: "Ilustrace",
+    ed_illustration_helper: "Animovaná chodba v záhlaví, která ukazuje stav detektorů",
+    ed_illustration_theme: "Motiv ilustrace",
+    ed_illustration_theme_helper: "Auto: noc, když slunce zapadlo (sun.sun) nebo v tmavém režimu",
+    theme_auto: "Automaticky (slunce nebo tmavý motiv)",
+    theme_day: "Den",
+    theme_night: "Noc",
   },
   sl: {
     title: "Varnost",
@@ -2253,6 +2386,13 @@ const SC_I18N = {
     ed_include_helper: "Javljalniki iz drugega prostora ali brez prostora",
     ed_exclude_helper: "Javljalniki, ki jih kartica izpusti",
     other_room: "Drugo",
+    ed_illustration: "Ilustracija",
+    ed_illustration_helper: "Animiran hodnik v glavi, ki prikazuje stanje detektorjev",
+    ed_illustration_theme: "Tema ilustracije",
+    ed_illustration_theme_helper: "Samodejno: noč, ko sonce zaide (sun.sun) ali v temnem načinu",
+    theme_auto: "Samodejno (sonce ali temna tema)",
+    theme_day: "Dan",
+    theme_night: "Noč",
   },
   lv: {
     title: "Drošība",
@@ -2294,6 +2434,13 @@ const SC_I18N = {
     ed_include_helper: "Detektori no citas telpas vai bez telpas",
     ed_exclude_helper: "Detektori, ko kartīte izlaiž",
     other_room: "Citi",
+    ed_illustration: "Ilustrācija",
+    ed_illustration_helper: "Animēts gaitenis galvenē, kas rāda detektoru stāvokli",
+    ed_illustration_theme: "Ilustrācijas motīvs",
+    ed_illustration_theme_helper: "Auto: nakts, kad saule ir norietējusi (sun.sun) vai tumšajā režīmā",
+    theme_auto: "Automātiski (saule vai tumšā tēma)",
+    theme_day: "Diena",
+    theme_night: "Nakts",
   },
   el: {
     title: "Ασφάλεια",
@@ -2335,6 +2482,13 @@ const SC_I18N = {
     ed_include_helper: "Ανιχνευτές από άλλο δωμάτιο ή χωρίς δωμάτιο",
     ed_exclude_helper: "Ανιχνευτές που παραλείπει η κάρτα",
     other_room: "Άλλα",
+    ed_illustration: "Εικονογράφηση",
+    ed_illustration_helper: "Ένας κινούμενος διάδρομος στην κεφαλίδα που δείχνει την κατάσταση των ανιχνευτών",
+    ed_illustration_theme: "Θέμα εικονογράφησης",
+    ed_illustration_theme_helper: "Αυτόματο: νύχτα όταν ο ήλιος έχει δύσει (sun.sun) ή σε σκοτεινή λειτουργία",
+    theme_auto: "Αυτόματο (ήλιος ή σκούρο θέμα)",
+    theme_day: "Ημέρα",
+    theme_night: "Νύχτα",
   },
 };
 
@@ -2372,6 +2526,13 @@ const rcEsc = (s) =>
     /[&<>"']/g,
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
   );
+
+// The whole width of an element's text in its own font, an ellipsised one included.
+const textWidth = (el) => {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  return range.getBoundingClientRect().width;
+};
 
 const rcEscRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -2484,6 +2645,51 @@ class RcCard extends HTMLElement {
     root.addEventListener("keydown", () => {
       this._byPointer = false;
     });
+    // The status pill is fitted after every redraw of the card, for every new width and once the web font is in.
+    if (typeof MutationObserver === "function") new MutationObserver(() => this._fitPill()).observe(root, { childList: true, subtree: true });
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver((entries) => {
+        const w = Math.round(entries.at(-1).contentRect.width);
+        if (w === this._fitWidth) return;
+        this._fitWidth = w;
+        this._fitPill();
+      }).observe(this);
+    }
+    document.fonts?.ready?.then(() => this._fitPill());
+  }
+
+  // The status pill stays right after the title only while the whole title and the pill's whole label fit on that
+  // row; otherwise it takes a line of its own under the title and subtitle (data-wrap), and on the banner, when even
+  // then the text would run into the floor strip, it keeps its dot alone (data-dot). Measured in the real fonts (the
+  // pill at its natural width), so that every language and title length gets its own answer.
+  _fitPill() {
+    const root = this.shadowRoot;
+    for (const pill of root?.querySelectorAll?.(".hero .trow > .hpill, .head > .pill, .mini .head > .st") || []) {
+      const hero = pill.closest(".hero");
+      const host = hero || pill.parentElement;
+      const title = pill.parentElement.querySelector(":scope > .title");
+      if (!pill.getBoundingClientRect || !title) continue;
+      host.removeAttribute("data-wrap");
+      host.removeAttribute("data-dot");
+      // The room the title and the pill share now (the banner's row, or the classic header's title + pill), and the
+      // room they need: the whole title and the pill at its natural width.
+      const have = hero ? pill.parentElement.getBoundingClientRect().width : title.getBoundingClientRect().width + pill.getBoundingClientRect().width;
+      const gap = hero ? parseFloat(getComputedStyle(pill.parentElement).columnGap) || 0 : 0;
+      pill.style.maxWidth = "none";
+      pill.style.flex = "none";
+      const natural = pill.getBoundingClientRect().width;
+      pill.style.maxWidth = "";
+      pill.style.flex = "";
+      const shown = getComputedStyle(title).display !== "none" && getComputedStyle(title).visibility !== "hidden";
+      if ((shown ? textWidth(title) + gap : 0) + natural <= have) continue;
+      host.setAttribute("data-wrap", "");
+      if (!hero) continue;
+      const t = pill.closest(".titles");
+      const r = t.getBoundingClientRect();
+      const box = hero.getBoundingClientRect();
+      const floor = hero.querySelector(".ground")?.getBoundingClientRect().top ?? box.bottom;
+      if (r.bottom > floor + 0.5 || r.top < box.top - 0.5 || natural > r.width + 0.5) host.setAttribute("data-dot", "");
+    }
   }
 
   disconnectedCallback() {
@@ -2924,7 +3130,7 @@ const rcMini = (Base, tag, styles, { alertsOnly = false } = {}) =>
     // Its click is the overviews' (rcZoomClick): stop the tap on the title (navigation_path), toggle, keep the
     // keyboard focus (Enter / Space: no click count) on the button that replaced this one.
     _addZoom() {
-      const head = this._config.zoom && this.shadowRoot.querySelector(".head");
+      const head = this._config.zoom && this._zoomHost();
       if (!head || head.querySelector(".zoom")) return;
       const button = document.createElement("button");
       button.className = "zoom";
@@ -2932,6 +3138,11 @@ const rcMini = (Base, tag, styles, { alertsOnly = false } = {}) =>
       button.innerHTML = `<ha-icon icon="${rcZoomIcon(this)}"></ha-icon>`;
       button.addEventListener("click", (ev) => rcZoomClick(this, ev));
       head.appendChild(button);
+    }
+
+    // Where the zoom button goes: the end of the header (a card may pick another spot, its illustrated banner).
+    _zoomHost() {
+      return this.shadowRoot.querySelector(".head");
     }
   };
 
@@ -3266,18 +3477,14 @@ const RC_BASE_STYLES = `
           color: color-mix(in srgb, var(--c) 50%, var(--primary-text-color, #212121)); }
   .pt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pill ha-icon { flex: none; }
-  /* A card this narrow (6 columns of the Sections view on a phone): the title is at its few letters already, so the
-     status pill goes to a line of its own under it, where its whole label fits, rather than end with "…". */
-  @container (max-width: 260px) {
-    .head { flex-wrap: wrap; row-gap: 4px; }
-    .head::after { content: ""; order: 1; flex: 1 0 100%; }
-    .head > .pill { order: 2; margin-left: 50px; max-width: calc(100% - 50px); }
-  }
+  /* Not enough room for the whole title and the pill's whole label on one line (measured by the card, see _fitPill):
+     the status pill goes to a line of its own under the title, where its whole label fits, rather than cut either. */
+  .head[data-wrap] { flex-wrap: wrap; row-gap: 4px; }
+  .head[data-wrap]::after { content: ""; order: 1; flex: 1 0 100%; }
+  .head[data-wrap] > .pill { order: 2; margin-left: 50px; max-width: calc(100% - 50px); }
+  .mini .head[data-wrap] > .st { order: 2; margin-left: 0; max-width: 100%; }
   @container (max-width: 200px) {
-    /* Under 200 px the pill is only its dot again: back on the title's line. */
-    .head { flex-wrap: nowrap; }
-    .head::after { content: none; }
-    .head > .pill { order: 0; margin-left: 0; max-width: none; }
+    /* Under 200 px the pill is only its dot. */
     .head > .pill .pt, .st .pt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     .head > .pill:not(.action), .st { flex: none; padding: 0; width: 18px; height: 18px; justify-content: center; background: none; }
     .head > .pill:not(.action)::before, .st::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }

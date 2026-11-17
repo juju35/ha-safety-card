@@ -51,6 +51,8 @@ The cards share the look of the other ha-* cards (header with a status pill, com
 
 `custom:safety-card` — The smoke, carbon monoxide, gas and water leak detectors of the whole home, or of one room (`area`).
 
+- **Illustrated header** (`illustration`): an animated hallway on a parquet strip, with the detectors drawn big, that follows the state of the home — all clear (green light), smoke (a cloud, the ceiling detector in red with its alarm rings), carbon monoxide (the boiler, the CO detector, the air tinted amber), gas (the cooker's fumes, the gas detector in red), water leak (a dripping pipe, a spreading puddle, the leak sensor in red), a low battery or another maintenance need (amber light and a bubble). The icon badge is coloured by the status; night when `sun.sun` is below the horizon or with the dark mode (even while the sun is up), or `illustration_theme: day | night`; `illustration: false` keeps the classic header
+
 - **One tile per detector**: a detector is a device, with all its alarm sensors (a smoke + gas detector is one tile, *Smoke + Gas*); an alarm sensor with no device is a detector of its own
 - **Alarm first**: the detector sounding goes to the top, in red, with a blinking icon and how long it has been sounding (*Smoke detected · 2 min*); the header pill names the alarm and its room (*Smoke detected · Kitchen*) and the badge pulses
 - **Alarm banner** under the header (`banner`): what, where and since when, the other detectors sounding (*also Living room*), a **Silence** button when the detectors have one (a `button` entity named *silence*, *hush* or *mute*) and a **Details** button that opens the alarm's dialog
@@ -63,7 +65,7 @@ The cards share the look of the other ha-* cards (header with a status pill, com
 
 ### Safety mini
 
-`custom:safety-mini-card` — The detectors on two lines: the badge, the title and the status, then a tinted pill for each detector in alarm (red, blinking) or needing a look (orange). Quiet detectors only show once zoomed in: the **zoom** button (top right) opens the full card in place, and a click anywhere else folds it back (`zoom: false` removes the button).
+`custom:safety-mini-card` — The same illustrated header (90 px, like the full card), then the detectors on a line; with `illustration: false`, the detectors on two lines: the badge, the title and the status, then a tinted pill for each detector in alarm (red, blinking) or needing a look (orange). Quiet detectors only show once zoomed in: the **zoom** button (top right) opens the full card in place, and a click anywhere else folds it back (`zoom: false` removes the button).
 
 ### Safety overview
 
@@ -151,6 +153,8 @@ type: custom:safety-overview-card
 | `title` | string | area name, else *Home safety* | Card title |
 | `show_title` | boolean | `true` | Show the title (the pill and buttons stay in place) |
 | `navigation_path` | string | | A tap on the header opens this dashboard path |
+| `illustration` | boolean | `true` | Both: the animated hallway header; `false` for the classic header |
+| `illustration_theme` | `auto` \| `day` \| `night` | `auto` | Both: `auto`: night when `sun.sun` is below the horizon or with Home Assistant's dark mode, even while the sun is up |
 | `columns` | number | `2` | Tiles per row (1–4); one per row on a narrow card |
 | `layout` | `compact` \| `tiles` | `compact` | `tiles`: large tiles, the size of Home Assistant's Tile card |
 | `only_alerts` | boolean | `false` | Full card only: show only the detectors in alarm or needing a look (always the case in the mini card's compact view) |

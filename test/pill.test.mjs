@@ -19,7 +19,7 @@ const src = (name) => readFileSync(new URL(`../src/${name}.js`, import.meta.url)
 const CARDS = ["safety-card", "safety-overview-card"];
 const js = ["{", src("shared"), ...CARDS.map((c) => `{\n${src(c)}}\n`), "}"].join("\n");
 
-const TAGS = ["safety-card", "safety-mini-card"];
+const TAGS = ["safety-card", "safety-mini-card", "safety-overview-card"];
 const LANGUAGES = ["en", "fr", "de", "hu", "el", "ru"];
 const WIDTHS = [190, 245, 300, 400, 460, 500];
 
@@ -75,7 +75,7 @@ test("status pill beside a whole title or under the subtitle, label whole or dot
           const pillAudit = new Function(`return (${audit})`)();
           const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
           const res = [];
-          for (const zoom of tag.includes("mini") ? [false, true] : [false])
+          for (const zoom of tag.includes("mini") || tag.includes("overview") ? [false, true] : [false])
             for (const language of LANGUAGES)
               for (const width of WIDTHS)
                 for (const title of [undefined, "Kitchen and dining room smoke"]) {

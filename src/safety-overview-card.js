@@ -10,7 +10,7 @@ const SC_OTHER = "_other";
 class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
   static tag = "safety-overview-card";
   static i18n = SC_I18N;
-  static defaults = { zoom: true, sort: "state", battery_threshold: 20, exclude_areas: [], exclude: [], rooms: [] };
+  static defaults = { zoom: true, illustration: true, illustration_theme: "auto", sort: "state", battery_threshold: 20, exclude_areas: [], exclude: [], rooms: [] };
 
   static getStubConfig() {
     return {};
@@ -53,7 +53,7 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
       const room = d.area && h.areas?.[d.area] ? d.area : SC_OTHER;
       if (room === SC_OTHER && exclude.has(SC_OTHER)) continue;
       const r = scRead(h, d, Number(c.battery_threshold) || 20);
-      (rooms[room] ||= { id: room, dets: [] }).dets.push({ ...r, kind: d.alarms[0].kind, id: (r.active[0] || d.alarms[0]).id, ids: d.alarms.map((a) => a.id) });
+      (rooms[room] ||= { id: room, dets: [] }).dets.push({ ...r, kind: d.alarms[0].kind, kinds: [...new Set(d.alarms.map((a) => a.kind))], id: (r.active[0] || d.alarms[0]).id, ids: d.alarms.map((a) => a.id) });
     }
     const rank = (x) => (x.level === "alert" ? 2 : x.level === "warn" ? 1 : 0);
     let list = Object.values(rooms).map((x) => {
@@ -92,13 +92,13 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
     this._rooms = rooms;
     const all = this._all.flatMap((x) => x.dets.map((d) => ({ ...d, areaName: x.name })));
     const parts = this._all.map((x) => [x.id, x.name, x.icon, x.dets.map((d) => [d.id, d.level, d.active.map((a) => a.kind), d.batteryLow, d.replace, d.fault, d.unavailable, d.battery])]);
-    if (!this._changed([this._openArea, this._zoomed, rooms.map((x) => x.id), parts])) return;
+    if (!this._changed([this._openArea, this._zoomed, rooms.map((x) => x.id), parts, this._night()])) return;
 
     if (!this.shadowRoot.querySelector("ha-card")) {
       this.shadowRoot.innerHTML = `
         <style>${RC_BASE_STYLES}${SafetyOverviewCard.styles}</style>
-        <ha-card><div class="head"></div><div class="panel" hidden></div><div class="grid"></div></ha-card>`;
-      this.shadowRoot.querySelector(".head").addEventListener("click", (ev) => rcZoomClick(this, ev));
+        <ha-card><div class="top"></div><div class="panel" hidden></div><div class="grid"></div></ha-card>`;
+      this.shadowRoot.querySelector(".top").addEventListener("click", (ev) => rcZoomClick(this, ev));
       this.shadowRoot.querySelector(".grid").addEventListener("click", (ev) => {
         const tile = ev.target.closest(".room");
         if (tile) this._tap(tile.dataset.area);
@@ -128,13 +128,16 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
       .join("");
 
     const card = this.shadowRoot.querySelector("ha-card");
-    card.className = `lvl-${level}`;
-    card.querySelector(".head").innerHTML = `
+    card.className = `lvl-${level}${this._illustrated() ? " ill" : ""}`;
+    const title = c.title || this._t("title");
+    card.querySelector(".top").innerHTML = this._illustrated()
+      ? this._hero({ level, top, alarms, icon, status, title, chips: headChips })
+      : `<div class="head">
       <div class="badge"><ha-icon icon="${icon}"></ha-icon></div>
-      <div class="title">${rcEsc(c.title || this._t("title"))}</div>
+      <div class="title">${rcEsc(title)}</div>
       ${headChips ? `<div class="hchips">${headChips}</div>` : ""}
       <div class="pill" title="${rcEsc(status)}"><span class="pt">${rcEsc(status)}</span></div>
-      ${all.length ? rcZoomButton(this) : ""}`;
+      ${all.length ? rcZoomButton(this) : ""}</div>`;
 
     // A room tile: its name and state, then one chip per detector, tinted by its state.
     this._roomGrid(card.querySelector(".grid"), rooms, (x) => {
@@ -153,6 +156,41 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
         <span class="chips">${chips}</span>
       </button>`;
     });
+  }
+
+  // The illustrated header is on unless `illustration: false` (the classic header then).
+  _illustrated() {
+    return this._config.illustration !== false;
+  }
+
+  // Night picture or not, part of the redraw signature; null without a picture.
+  _night() {
+    return this._illustrated() ? scIsNight(this._hass, this._config) : null;
+  }
+
+  // The safety card's banner for the whole home: the hallway for the state of every detector, the icon (coloured by the
+  // status) with the title and the status pill on the wall at its left; under them, the rooms sounding or, without an
+  // alarm, the chips counting the maintenance needs. The detail button sits at its top right corner.
+  _hero({ level, top, alarms, icon, status, title, chips }) {
+    this._uid ??= ++scUidNext;
+    const dets = this._all.flatMap((x) => x.dets);
+    const scene = scSceneState({ level, top }, dets);
+    const pill = alarms.length ? this._t(top) : status;
+    const rooms = [...new Set(alarms.map((d) => d.areaName))].join(", ");
+    const sub = alarms.length ? `<div class="sub" title="${rcEsc(rooms)}">${rcEsc(rooms)}</div>` : chips ? `<div class="sub hchips">${chips}</div>` : "";
+    return `
+      <div class="hero sc-${scene}${this._night() ? " night" : ""}">
+        ${scSceneSvg(scene, this._uid, scKindsOf(dets), dets.find((d) => d.level === "warn")?.kinds[0])}
+        <div class="ground" aria-hidden="true"></div>
+        <div class="head htext">
+          <div class="badge" title="${rcEsc(status)}"><ha-icon icon="${rcEsc(icon)}"></ha-icon></div>
+          <div class="titles">
+            <div class="trow"><div class="title">${rcEsc(title)}</div><span class="hpill" title="${rcEsc(status)}" aria-label="${rcEsc(status)}"><span class="dot"></span><span class="pt">${rcEsc(pill)}</span></span></div>
+            ${sub}
+          </div>
+        </div>
+        ${dets.length ? rcZoomButton(this) : ""}
+      </div>`;
   }
 
   _shownRooms() {
@@ -200,15 +238,20 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
       .chip:not(:has(span)) { width: 18px; padding: 0; justify-content: center; }
       .chip.alert { --k: var(--rc-alert); }
       .chip.warn  { --k: var(--rc-warn); }
-      .hchips { flex: none; display: flex; align-items: center; gap: inherit; }
+      .head > .hchips { flex: none; display: flex; align-items: center; gap: inherit; }
       @container (max-width: 420px) {
         .head { gap: 6px; flex-wrap: wrap; }
         /* The chips go under the title; the zoom stays on the title's row, and so does the pill while it fits whole
            beside the whole title (else, measured by the card, it goes under the chips). */
-        .hchips { order: 2; flex: 1 0 100%; flex-wrap: wrap; box-sizing: border-box; padding-left: 46px; }
+        .head > .hchips { order: 2; flex: 1 0 100%; flex-wrap: wrap; box-sizing: border-box; padding-left: 46px; }
         .head > .pill, .head > .zoom { order: 1; }
         .head[data-wrap] > .pill { order: 3; }
       }
+      ${SC_SCENE_STYLE}
+      /* On the banner, the maintenance chips sit on the subtitle line, tinted for the wall like the status pill. */
+      .hero .sub.hchips { display: flex; gap: 4px; overflow: hidden; }
+      .hero .chip { color: color-mix(in srgb, var(--k) 45%, #0d2a45); background: color-mix(in srgb, var(--k) 18%, rgba(255,255,255,.78)); }
+      .hero.night .chip { color: color-mix(in srgb, var(--k) 35%, #ffffff); background: color-mix(in srgb, var(--k) 30%, rgba(8,18,38,.55)); }
       .room { --t: var(--rc-idle); }
       .room.lvl-warn  { --t: var(--rc-warn); }
       .room.lvl-alert { --t: var(--rc-alert); }
@@ -221,7 +264,7 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
 // ── Editor ───────────────────────────────────────────────────────────────────
 const SafetyOverviewCardEditor = rcEditor({
   card: SafetyOverviewCard,
-  helpers: ["title", "zoom", "exclude", ...RC_ADVANCED_HELPERS],
+  helpers: ["title", "zoom", "illustration", "illustration_theme", "exclude", ...RC_ADVANCED_HELPERS],
   schema: (lang, hass, config) => {
     const probe = hass ? rcProbe(SafetyOverviewCard, hass, { ...config, exclude_areas: [], exclude: [], zoom: false }) : null;
     const rooms = probe ? probe._collect() : [];
@@ -229,7 +272,8 @@ const SafetyOverviewCardEditor = rcEditor({
     for (const id of config?.exclude || []) if (!ids.includes(id)) ids.push(id);
     return [
       ...rcOverviewFields(SC_I18N, lang),
-      ...rcBooleans("show_title", "zoom"),
+      ...rcBooleans("show_title", "illustration", "zoom"),
+      { name: "illustration_theme", selector: { select: { mode: "dropdown", options: ["auto", "day", "night"].map((value) => ({ value, label: rcT(SC_I18N, lang, `theme_${value}`) })) } } },
       { name: "battery_threshold", selector: { number: { min: 5, max: 50, step: 5, mode: "slider", unit_of_measurement: "%" } } },
       { name: "exclude_areas", selector: { select: { multiple: true, mode: "dropdown", options: rooms.map((x) => ({ value: x.id, label: x.name })) } } },
       ...rcEntitiesField("exclude", ids),

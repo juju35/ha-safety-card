@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1 - 2026-11-18
+
+### Fixes
+- Safety mini card with the illustrated header: no more empty white strip under the banner when there is no chip to show (nothing to report).
+
 ## 1.3.0 - 2026-11-18
 
 ### Features

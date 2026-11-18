@@ -10,7 +10,7 @@ const SC_OTHER = "_other";
 class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
   static tag = "safety-overview-card";
   static i18n = SC_I18N;
-  static defaults = { zoom: true, illustration: true, illustration_theme: "auto", sort: "state", battery_threshold: 20, exclude_areas: [], exclude: [], rooms: [] };
+  static defaults = { zoom: true, hide_when_clear: false, illustration: true, illustration_theme: "auto", sort: "state", battery_threshold: 20, exclude_areas: [], exclude: [], rooms: [] };
 
   static getStubConfig() {
     return {};
@@ -22,6 +22,7 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
   }
 
   getCardSize() {
+    if (this.hidden) return 0;
     return 1 + Math.ceil((this._rooms?.length || 1) / 3);
   }
 
@@ -93,6 +94,8 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
     const all = this._all.flatMap((x) => x.dets.map((d) => ({ ...d, areaName: x.name })));
     const parts = this._all.map((x) => [x.id, x.name, x.icon, x.dets.map((d) => [d.id, d.level, d.active.map((a) => a.kind), d.batteryLow, d.replace, d.fault, d.unavailable, d.battery])]);
     if (!this._changed([this._openArea, this._zoomed, rooms.map((x) => x.id), parts, this._night()])) return;
+    // hide_when_clear: no alarm, no maintenance need and at least one detector (a home with none is no all-clear).
+    if (this._hide(c.hide_when_clear && all.length > 0 && all.every((d) => d.level === "ok"))) return;
 
     if (!this.shadowRoot.querySelector("ha-card")) {
       this.shadowRoot.innerHTML = `
@@ -274,7 +277,7 @@ const SafetyOverviewCardEditor = rcEditor({
     for (const id of config?.exclude || []) if (!ids.includes(id)) ids.push(id);
     return [
       ...rcOverviewFields(SC_I18N, lang),
-      ...rcBooleans("show_title", "illustration", "zoom"),
+      ...rcBooleans("show_title", "illustration", "zoom", "hide_when_clear"),
       { name: "illustration_theme", selector: { select: { mode: "dropdown", options: ["auto", "day", "night"].map((value) => ({ value, label: rcT(SC_I18N, lang, `theme_${value}`) })) } } },
       { name: "battery_threshold", selector: { number: { min: 5, max: 50, step: 5, mode: "slider", unit_of_measurement: "%" } } },
       { name: "exclude_areas", selector: { select: { multiple: true, mode: "dropdown", options: rooms.map((x) => ({ value: x.id, label: x.name })) } } },

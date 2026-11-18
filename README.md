@@ -78,6 +78,7 @@ The cards share the look of the other ha-* cards (header with a status pill, com
 - `rooms` reorders the rooms and overrides their name, icon or `navigation_path` (a tap then opens that dashboard instead of unfolding)
 - Detectors with no room (or whose room was deleted) gather in an **Other** tile: their alarms always reach the header
 - Excluding one alarm sensor of a combined detector (`exclude`) leaves the whole detector out
+- `hide_when_clear` hides the whole card while every detector is fine
 
 ## Supported integrations
 
@@ -178,6 +179,7 @@ type: custom:safety-overview-card
 | `columns` | number | `3` | Room tiles per row (1–6) |
 | `sort` | `state` \| `name` | `state` | Rooms needing a look first, or by name |
 | `zoom` | boolean | `true` | Only the rooms needing a look, with a detail button showing every room; `false`: every room, always |
+| `hide_when_clear` | boolean | `false` | Hide the card when every detector of the home is fine (no alarm, nothing to check); it shows again on its own at the first alarm or maintenance need |
 | `illustration` | boolean | `true` | The animated hallway in the header, for the state of every detector; `false`: the classic header |
 | `illustration_theme` | `auto` \| `day` \| `night` | `auto` | Day or night picture, as on the safety card |
 | `battery_threshold` | number | `20` | Battery level (%) under which a detector needs a look |

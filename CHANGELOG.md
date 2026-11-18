@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.2 - 2026-11-18
+
+### Fixes
+- Safety overview card with the illustrated header: no more empty strip under the banner when no room is shown (nothing to report).
+
 ## 1.3.1 - 2026-11-18
 
 ### Fixes

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 - 2026-11-18
+
+### Features
+- **Illustrated header on the safety overview card**, left out of 1.2.0: the same animated hallway as the safety card (90 px, parquet strip, night picture, `blink`/reduced motion), drawn for every detector of the home. The status pill sits after the title; under it, the rooms sounding or, without an alarm, the chips counting the maintenance needs; the detail button is the round frosted button in the banner's top right corner. `illustration` and `illustration_theme` work as on the safety card and are in the visual editor; `illustration: false` keeps the classic header.
+
 ## 1.2.3 - 2026-11-18
 
 ### Fixes

@@ -254,7 +254,7 @@ test("overview: a second active alarm of a combined detector redraws the header"
   card.hass = { ...h, states: gas };
   card.hass = { ...h, states: on(gas, "binary_sensor.kitchen_smoke") };
   const fresh = make("safety-overview-card", {}, { ...h, states: on(gas, "binary_sensor.kitchen_smoke") });
-  const head = (c) => c.shadowRoot.querySelector("ha-card").querySelector(".head").innerHTML;
+  const head = (c) => c.shadowRoot.querySelector("ha-card").querySelector(".top").innerHTML.replace(/sc-(glow|fadeg|fade)-\d+/g, "sc-$1");
   assert.match(head(fresh), /Smoke detected/);
   assert.equal(head(card), head(fresh));
 });
@@ -288,7 +288,7 @@ test("overview: a detector with no room still counts, in an Other tile", () => {
   assert.ok(other, "an Other tile");
   assert.equal(other.name, "Other");
   assert.equal(other.level, "alert");
-  assert.match(ov.shadowRoot.querySelector("ha-card").querySelector(".head").innerHTML, /Smoke detected/);
+  assert.match(ov.shadowRoot.querySelector("ha-card").querySelector(".top").innerHTML, /Smoke detected/);
 });
 
 test("no detector: grey, a neutral shield, no zoom", () => {
@@ -298,7 +298,7 @@ test("no detector: grey, a neutral shield, no zoom", () => {
   const card = make("safety-card", {}, h);
   assert.equal(card._summary(card._items).level, "none");
   const ov = make("safety-overview-card", {}, h);
-  assert.doesNotMatch(ov.shadowRoot.querySelector("ha-card").querySelector(".head").innerHTML, /class="zoom"/);
+  assert.doesNotMatch(ov.shadowRoot.querySelector("ha-card").querySelector(".top").innerHTML, /class="zoom"/);
 });
 
 test("the alarm banner is announced once, not at each minute's redraw", () => {

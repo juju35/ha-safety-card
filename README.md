@@ -72,7 +72,7 @@ The cards share the look of the other ha-* cards (header with a status pill, com
 `custom:safety-overview-card` — Every room with a detector, at a glance.
 
 - One tile per room, coloured by its most serious detector: *Smoke detected* (red, blinking), *Battery 18%*, *Replace soon* or *2 to check* (orange), *All clear*; under the name, one small chip per detector, tinted by its state
-- Header with the home status (same as a home-wide safety card) and chips counting the low batteries, the detectors to replace, the faults and the unavailable ones
+- The same **illustrated header** as the safety card (90 px), for the state of every detector of the home: the status pill after the title, then the rooms sounding or, without an alarm, chips counting the low batteries, the detectors to replace, the faults and the unavailable ones; the detail button sits in the banner's top right corner. `illustration: false` keeps the classic header (status and chips on one line)
 - Only the rooms needing a look show; the **detail** button (top right) shows every room, and back (`zoom: false`: every room, always); rooms needing a look come first (`sort: state`, the default) or by name (`sort: name`)
 - **Tap** a room to unfold its safety card at the top of the card (banner, tiles, test button); tap it again or anywhere else to fold it back
 - `rooms` reorders the rooms and overrides their name, icon or `navigation_path` (a tap then opens that dashboard instead of unfolding)
@@ -178,6 +178,8 @@ type: custom:safety-overview-card
 | `columns` | number | `3` | Room tiles per row (1–6) |
 | `sort` | `state` \| `name` | `state` | Rooms needing a look first, or by name |
 | `zoom` | boolean | `true` | Only the rooms needing a look, with a detail button showing every room; `false`: every room, always |
+| `illustration` | boolean | `true` | The animated hallway in the header, for the state of every detector; `false`: the classic header |
+| `illustration_theme` | `auto` \| `day` \| `night` | `auto` | Day or night picture, as on the safety card |
 | `battery_threshold` | number | `20` | Battery level (%) under which a detector needs a look |
 | `exclude_areas` | list | | Rooms to leave out |
 | `exclude` | list | | Detectors to leave out |

@@ -329,3 +329,58 @@ test("night picture: the dark theme alone, a light theme stays day after sunset;
     assert.equal(make(tag, { illustration_theme: "night" }, sky("above_horizon"))._night(), true, `${tag}: forced night`);
   }
 });
+
+// Hidden cards drop their slot in a sections view: hui-card reads `hidden` on card-visibility-changed, and keeps the
+// card in the DOM (connectedWhileHidden) so that it shows again on its own; never hidden in the editor preview.
+const clearHass = () => {
+  const h = makeHass();
+  h.states["sensor.kitchen_battery"] = st("sensor.kitchen_battery", "80", { device_class: "battery" });
+  h.states["binary_sensor.bed_end_of_life"] = st("binary_sensor.bed_end_of_life", "off", { device_class: "problem" });
+  return h;
+};
+const watchVisibility = (card) => {
+  const seen = [];
+  card.dispatchEvent = (ev) => {
+    if (ev.type === "card-visibility-changed") seen.push(ev.detail.value);
+  };
+  return seen;
+};
+
+test("hide_when_clear sets `hidden`, tells Lovelace and stays connected; an alarm shows the card again", () => {
+  for (const tag of ["safety-card", "safety-mini-card"]) {
+    const card = new cards[tag]();
+    assert.equal(card.connectedWhileHidden, true, tag);
+    const seen = watchVisibility(card);
+    card.attachShadow();
+    card.setConfig({ type: `custom:${tag}`, hide_when_clear: true });
+    card.hass = clearHass();
+    assert.equal(card.hidden, true, tag);
+    assert.equal(card.style.display, "none", tag);
+    assert.equal(card.connectedWhileHidden, true, tag);
+    assert.equal(card.getCardSize(), 0, tag);
+    const h = clearHass();
+    h.states["binary_sensor.kitchen_smoke"] = st("binary_sensor.kitchen_smoke", "on", { device_class: "smoke" });
+    card.hass = h;
+    assert.equal(card.hidden, false, tag);
+    assert.equal(card.style.display, "", tag);
+    assert.deepEqual([...seen], [false, true], tag);
+  }
+});
+
+for (const flag of ["preview", "editMode"]) {
+  test(`hide_when_clear never hides the card in ${flag}`, () => {
+    const card = new cards["safety-card"]();
+    const seen = watchVisibility(card);
+    card.attachShadow();
+    card.setConfig({ type: "custom:safety-card", hide_when_clear: true });
+    card.hass = clearHass();
+    assert.equal(card.hidden, true);
+    card[flag] = true;
+    assert.equal(card[flag], true);
+    assert.equal(card.hidden, false);
+    assert.ok(card.getCardSize() > 0);
+    card[flag] = false;
+    assert.equal(card.hidden, true);
+    assert.deepEqual([...seen], [false, true, false]);
+  });
+}

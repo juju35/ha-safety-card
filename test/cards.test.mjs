@@ -367,6 +367,25 @@ test("hide_when_clear sets `hidden`, tells Lovelace and stays connected; an alar
   }
 });
 
+test("hide_when_clear hides the overview while every detector is fine, and an alarm shows it again", () => {
+  const card = make("safety-overview-card", { hide_when_clear: true }, clearHass());
+  const seen = watchVisibility(card);
+  assert.equal(card.hidden, true);
+  assert.equal(card.style.display, "none");
+  assert.equal(card.connectedWhileHidden, true);
+  assert.equal(card.getCardSize(), 0);
+  const h = clearHass();
+  h.states["binary_sensor.kitchen_smoke"] = st("binary_sensor.kitchen_smoke", "on", { device_class: "smoke" });
+  card.hass = h;
+  assert.equal(card.hidden, false);
+  assert.equal(card.style.display, "");
+  assert.deepEqual([...seen], [true]);
+  card.hass = clearHass();
+  assert.equal(card.hidden, true);
+  card.preview = true;
+  assert.equal(card.hidden, false);
+});
+
 for (const flag of ["preview", "editMode"]) {
   test(`hide_when_clear never hides the card in ${flag}`, () => {
     const card = new cards["safety-card"]();

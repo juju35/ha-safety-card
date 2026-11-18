@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.0 - 2026-11-18
+
+### Features
+- Safety overview card: new `hide_when_clear` option (also in the visual editor), as on the safety card — the whole card hides while every detector of the home is fine and shows again on its own at the first alarm or maintenance need; it stays visible in the card editor preview.
+
 ## 1.3.2 - 2026-11-18
 
 ### Fixes

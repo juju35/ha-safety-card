@@ -250,6 +250,8 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
       ${SC_SCENE_STYLE}
       /* On the banner, the maintenance chips sit on the subtitle line, tinted for the wall like the status pill. */
       .hero .sub.hchips { display: flex; gap: 4px; overflow: hidden; }
+      /* Banner alone (no room to show, no open room): the card ends on the parquet strip, no padding under it. */
+      ha-card.ill:has(.grid[hidden]):has(.panel[hidden]) { padding-bottom: 0; }
       .hero .chip { color: color-mix(in srgb, var(--k) 45%, #0d2a45); background: color-mix(in srgb, var(--k) 18%, rgba(255,255,255,.78)); }
       .hero.night .chip { color: color-mix(in srgb, var(--k) 35%, #ffffff); background: color-mix(in srgb, var(--k) 30%, rgba(8,18,38,.55)); }
       .room { --t: var(--rc-idle); }

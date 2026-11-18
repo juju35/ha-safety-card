@@ -385,14 +385,15 @@ class SafetyMiniCard extends rcMini(
     this._announced = key;
   }
 
-  // The compact view with the illustration: the full card's banner (same height), then the chips under it.
+  // The compact view with the illustration: the full card's banner (same height), then the chips under it — no strip
+  // under the banner when there is no chip to show.
   _paintHero(v, items, chips, cls) {
     const c = this._config;
     this.shadowRoot.innerHTML = `
       <style>${RC_BASE_STYLES}${this.constructor.styles}</style>
       <ha-card class="lvl-${v.level}${cls} ill mini-ill">
         ${this._hero(v, items, c.title || this._areaName() || this._t("title"))}
-        <div class="rs">${chips}</div>
+        ${chips ? `<div class="rs">${chips}</div>` : ""}
       </ha-card>`;
     const root = this.shadowRoot;
     if (c.navigation_path) rcBindNav(root.querySelector(".head"), c.navigation_path);

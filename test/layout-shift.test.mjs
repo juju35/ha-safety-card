@@ -14,10 +14,28 @@ try {
 } catch {}
 const browser = await harness?.launch().catch(() => null);
 
+// Home Assistant's <ha-card> is a Lit element: it renders its slot a few microtasks after it is attached, so that a
+// card rewritten from scratch measured its header (the status pill) in an empty card and put the pill on a line of its
+// own — the card grew or shrank at the update. A plain stand-in hides that; this one renders late, like Lit.
+const STAND_INS = `customElements.define("ha-card", class extends HTMLElement { connectedCallback() { if (this.shadowRoot) return;
+  const r = this.attachShadow({ mode: "open" });
+  Promise.resolve().then(() => Promise.resolve()).then(() => { r.innerHTML = "<style>:host{display:block;overflow:hidden;background:#fff;border-radius:12px}</style><slot></slot>"; }); } });
+customElements.define("ha-icon", class extends HTMLElement { connectedCallback() { this.style.cssText = "display:inline-block;width:var(--mdc-icon-size,24px);height:var(--mdc-icon-size,24px)"; } });`;
+const open = async (width) => {
+  const page = await browser.newPage({ viewport: { width: 1000, height: 1200 } });
+  await page.setContent(`<!doctype html><meta charset="utf-8"><body style="margin:0;font-family:Arial,sans-serif;font-size:14px"><div id="root" style="width:${width}px"></div></body>`);
+  await page.addScriptTag({ content: STAND_INS });
+  await page.addScriptTag({ content: js });
+  return page;
+};
+
 const src = (name) => readFileSync(new URL(`../src/${name}.js`, import.meta.url), "utf8");
 const js = ["{", src("shared"), ...["safety-card", "safety-overview-card"].map((c) => `{\n${src(c)}}\n`), "}"].join("\n");
 
+const LONG = "Kitchen and dining room smoke";
 const CASES = [
+  { tag: "safety-mini-card", config: { area: "kitchen", illustration: false, title: LONG }, width: 300 },
+  { tag: "safety-card", config: { area: "kitchen", title: LONG }, width: 300 },
   { tag: "safety-card", config: { area: "kitchen" } },
   { tag: "safety-mini-card", config: { area: "kitchen" } },
   { tag: "safety-mini-card", config: { area: "kitchen", illustration: false } },
@@ -32,13 +50,13 @@ hass.states["sensor.other"] = st("sensor.other", "0");
 const battery = (n) => st("sensor.kitchen_battery", String(n), { device_class: "battery", unit_of_measurement: "%" });
 const level = (n) => st("sensor.hall_co_level", String(n), { device_class: "carbon_monoxide", unit_of_measurement: "ppm" });
 const unrelated = Array.from({ length: 10 }, (_, i) => ({ "sensor.other": st("sensor.other", String(i + 1)) }));
-const relevant = Array.from({ length: 10 }, (_, i) => (i % 2 ? { "sensor.hall_co_level": level(3 + i) } : { "sensor.kitchen_battery": battery(17 - i) }));
+const relevant = Array.from({ length: 10 }, (_, i) => (i % 2 ? { "sensor.hall_co_level": level(3 + i) } : { "sensor.kitchen_battery": battery(19 - i) }));
 
 test("state updates patch the cards in place: nothing for others' entities, no node replaced, a steady height", { skip: !browser && "no Chromium" }, async () => {
   const failures = [];
   try {
     for (const c of CASES) {
-      const page = await harness.openPage(browser, { theme: "light", width: 400, js });
+      const page = await open(c.width ?? 400);
       const out = await page.evaluate(
         async ({ c, hass, unrelated, relevant }) => {
           const frame = () => new Promise((r) => requestAnimationFrame(r));

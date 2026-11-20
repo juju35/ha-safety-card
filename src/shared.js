@@ -3053,6 +3053,23 @@ class RcCard extends HTMLElement {
   // pill at its natural width), so that every language and title length gets its own answer.
   _fitPill() {
     const root = this.shadowRoot;
+    // Home Assistant's <ha-card> (a Lit element) lays out its content only once it has rendered, a few microtasks
+    // after it is attached: measured before that, the card is empty and the pill was put on a line of its own, until
+    // the next update put it back — the card changed height. A new <ha-card> is measured again once rendered.
+    const card = root?.querySelector?.("ha-card");
+    if (card && card !== this._fitCard) {
+      this._fitCard = card;
+      // Also on the next frame, and the one after while the card is not on the page yet (rendered before it is
+      // attached): a stand-in or an older card has no updateComplete.
+      let tries = 3;
+      const again = () => {
+        if (card !== this._fitCard) return;
+        if (card.isConnected) this._fitPill();
+        else if (tries-- > 0 && typeof requestAnimationFrame === "function") requestAnimationFrame(again);
+      };
+      Promise.resolve(card.updateComplete).then(() => card.isConnected && card === this._fitCard && this._fitPill());
+      if (typeof requestAnimationFrame === "function") requestAnimationFrame(again);
+    }
     for (const pill of root?.querySelectorAll?.(".hero .trow > .hpill, .head > .pill, .mini .head > .st") || []) {
       const hero = pill.closest(".hero");
       const host = hero || pill.parentElement;
@@ -3531,6 +3548,7 @@ const rcMini = (Base, tag, styles, { alertsOnly = false } = {}) =>
       const allOffBtn = root.querySelector(".st.action");
       if (rcOnce(allOffBtn, "allOff")) allOffBtn.addEventListener("click", (ev) => this._allOff(ev));
       for (const el of root.querySelectorAll(".r")) if (rcOnce(el, "chip")) el.addEventListener("click", () => rcMoreInfo(this, el.dataset.id));
+      this._fitPill();
     }
 
     // Zoom button at the end of the header, top right in both views, added once per render.

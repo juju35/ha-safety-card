@@ -413,3 +413,10 @@ for (const flag of ["preview", "editMode"]) {
     assert.deepEqual([...seen], [false, true, false]);
   });
 }
+
+test("mini card: half a section wide (6 columns) like the other mini cards, the full card's width once zoomed", () => {
+  const mini = make("safety-mini-card", {});
+  assert.deepEqual({ ...mini.getGridOptions() }, { columns: 6, min_columns: 6, rows: "auto" });
+  mini._zoomed = true;
+  assert.deepEqual({ ...mini.getGridOptions() }, { columns: 12, min_columns: 6, rows: "auto" });
+});

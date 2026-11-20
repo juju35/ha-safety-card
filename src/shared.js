@@ -3501,8 +3501,9 @@ const rcMini = (Base, tag, styles, { alertsOnly = false } = {}) =>
       return this.hidden ? 0 : 1;
     }
 
+    // Half a section wide, like the other ha-* mini cards; zoomed, the full card's.
     getGridOptions() {
-      return { columns: 12, min_columns: 6, rows: "auto" };
+      return this._zoomed ? super.getGridOptions() : { columns: 6, min_columns: 6, rows: "auto" };
     }
 
     _draw(items) {

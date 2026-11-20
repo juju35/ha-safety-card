@@ -94,7 +94,11 @@ class SafetyCard extends RcCard {
     const c = this._config;
     const entries = this._entries();
     const names = new Map(entries.filter((e) => e.name).map((e) => [e.entity, e]));
-    const dets = scDetectors(this, entries.map((e) => e.entity));
+    // As on the overview card: excluding one alarm sensor of a combined detector leaves the whole detector out
+    // (unless one of its sensors is listed in `include` or `entities`).
+    const listed = new Set([...(c.include || []), ...(c.entities || [])].map((e) => (typeof e === "string" ? e : e?.entity)));
+    const excludedDevices = new Set((c.exclude || []).map((id) => h.entities?.[id]?.device_id).filter(Boolean));
+    const dets = scDetectors(this, entries.map((e) => e.entity)).filter((d) => !excludedDevices.has(d.device) || d.alarms.some((a) => listed.has(a.id)));
     const perArea = {};
     for (const d of dets) perArea[d.area] = (perArea[d.area] || 0) + 1;
     const rank = { alert: 2, warn: 1, ok: 0 };
@@ -243,17 +247,35 @@ class SafetyCard extends RcCard {
     return `<div class="foot"><button class="act act-test${this._armed ? " armed" : ""}" data-k="test"><ha-icon icon="mdi:wrench-outline"></ha-icon><span>${rcEsc(label)}</span></button></div>`;
   }
 
+  // The buttons are kept across renders (wired once): they read the detectors at the click.
   _bindAfter(root) {
-    const items = this._items || [];
+    const items = () => this._items || [];
     const press = (ids) => ids.length && rcCall(this._hass, "button", "press", { entity_id: ids });
-    root.querySelector(".act-silence")?.addEventListener("click", () => press(items.filter((i) => i.level === "alert" && i.silence).map((i) => i.silence)));
-    root.querySelector(".act-details")?.addEventListener("click", () => {
-      const first = items.find((i) => i.level === "alert");
-      if (first) rcMoreInfo(this, first.id);
-    });
-    root.querySelector(".act-test")?.addEventListener("click", () => {
+    const silence = root.querySelector(".act-silence");
+    if (rcOnce(silence, "silence"))
+      silence.addEventListener("click", () =>
+        press(
+          items()
+            .filter((i) => i.level === "alert" && i.silence)
+            .map((i) => i.silence),
+        ),
+      );
+    const details = root.querySelector(".act-details");
+    if (rcOnce(details, "details"))
+      details.addEventListener("click", () => {
+        const first = items().find((i) => i.level === "alert");
+        if (first) rcMoreInfo(this, first.id);
+      });
+    const test = root.querySelector(".act-test");
+    if (!rcOnce(test, "test")) return;
+    test.addEventListener("click", () => {
       clearTimeout(this._armTimer);
-      if (this._armed) press(items.filter((i) => i.test).map((i) => i.test));
+      if (this._armed)
+        press(
+          items()
+            .filter((i) => i.test)
+            .map((i) => i.test),
+        );
       this._armed = !this._armed;
       if (this._armed) {
         this._armTimer = setTimeout(() => {
@@ -389,15 +411,16 @@ class SafetyMiniCard extends rcMini(
   // under the banner when there is no chip to show.
   _paintHero(v, items, chips, cls) {
     const c = this._config;
-    this.shadowRoot.innerHTML = `
+    rcMorph(
+      this.shadowRoot,
+      `
       <style>${RC_BASE_STYLES}${this.constructor.styles}</style>
       <ha-card class="lvl-${v.level}${cls} ill mini-ill">
         ${this._hero(v, items, c.title || this._areaName() || this._t("title"))}
         ${chips ? `<div class="rs">${chips}</div>` : ""}
-      </ha-card>`;
-    const root = this.shadowRoot;
-    if (c.navigation_path) rcBindNav(root.querySelector(".head"), c.navigation_path);
-    for (const el of root.querySelectorAll(".r")) el.addEventListener("click", () => rcMoreInfo(this, el.dataset.id));
+      </ha-card>`,
+    );
+    this._wireMini();
   }
 
   // On the banner, the zoom button sits at its top right corner.
@@ -409,7 +432,7 @@ class SafetyMiniCard extends rcMini(
 const SafetyMiniCardEditor = rcEditor({
   card: SafetyMiniCard,
   helpers: [...SC_CARD_HELPERS, "zoom"],
-  schema: scSchema(SafetyMiniCard, ["show_title", "illustration", "hide_when_clear", "test_button", "blink", "zoom"]),
+  schema: scSchema(SafetyMiniCard, ["show_title", "illustration", "hide_when_clear", "banner", "test_button", "blink", "zoom"]),
 });
 
 rcRegister(

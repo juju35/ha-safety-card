@@ -188,6 +188,16 @@ test("editors: defaults stay out of the YAML", () => {
   assert.deepEqual({ ...out }, { type: "custom:safety-card" });
 });
 
+test("mini card editor: the detail view's options (the alarm banner) are editable", () => {
+  const flat = (schema) => schema.flatMap((f) => (f.schema ? flat(f.schema) : [f]));
+  const ed = new (sc.customElements.get("safety-mini-card-editor"))();
+  ed.appendChild = () => {};
+  ed.setConfig({ type: "custom:safety-mini-card" });
+  ed.hass = makeHass();
+  const names = flat(ed._form.schema).map((f) => f.name);
+  for (const n of ["banner", "test_button", "illustration", "zoom"]) assert.ok(names.includes(n), n);
+});
+
 test("translations: every language has every key of English, with the same placeholders", () => {
   const LANGS = ["en", "fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl", "ro", "da", "sv", "bg", "ru", "uk", "hu", "sk", "cs", "sl", "lv", "el"];
   const vars = (s) => s.match(/\{\w+\}/g)?.sort() ?? [];
@@ -403,3 +413,37 @@ for (const flag of ["preview", "editMode"]) {
     assert.deepEqual([...seen], [false, true, false]);
   });
 }
+
+test("safety card: excluding one alarm sensor of a combined detector leaves the whole detector out, as on the overview", () => {
+  const all = html(make("safety-card", {}));
+  assert.match(all, /data-id="binary_sensor\.kitchen_smoke"/);
+  const out = html(make("safety-card", { exclude: ["binary_sensor.kitchen_smoke"] }));
+  assert.doesNotMatch(out, /data-id="binary_sensor\.kitchen_(smoke|gas)"/);
+  // A sensor of that detector listed in `include` brings it back.
+  const back = html(make("safety-card", { exclude: ["binary_sensor.kitchen_smoke"], include: ["binary_sensor.kitchen_gas"] }));
+  assert.match(back, /data-id="binary_sensor\.kitchen_(smoke|gas)"/);
+});
+
+test("mini card: half a section wide (6 columns) like the other mini cards, the full card's width once zoomed", () => {
+  const mini = make("safety-mini-card", {});
+  assert.deepEqual({ ...mini.getGridOptions() }, { columns: 6, min_columns: 6, rows: "auto" });
+  mini._zoomed = true;
+  assert.deepEqual({ ...mini.getGridOptions() }, { columns: 12, min_columns: 6, rows: "auto" });
+});
+
+test("overview: an open room shows its safety card (area, exclude, threshold, language), built once per room", () => {
+  const ov = make("safety-overview-card", { zoom: false, exclude: ["binary_sensor.garage_co"], battery_threshold: 30, language: "fr" });
+  const room = ov._rooms.find((r) => r.id !== "_other") || ov._rooms[0];
+  ov._openArea = room.id;
+  ov._fillPanel();
+  const [el] = ov._details;
+  assert.equal(el._config.type, "custom:safety-card");
+  assert.equal(el._config.area ?? null, room.id === "_other" ? null : room.id);
+  assert.deepEqual([...el._config.exclude], ["binary_sensor.garage_co"]);
+  assert.equal(el._config.battery_threshold, 30);
+  assert.equal(el._config.language, "fr");
+  ov._fillPanel();
+  assert.equal(ov._details[0], el, "the same room keeps its card");
+  ov._clearPanel();
+  assert.equal(ov._details.length, 0);
+});

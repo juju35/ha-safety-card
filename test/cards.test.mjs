@@ -430,3 +430,20 @@ test("mini card: half a section wide (6 columns) like the other mini cards, the 
   mini._zoomed = true;
   assert.deepEqual({ ...mini.getGridOptions() }, { columns: 12, min_columns: 6, rows: "auto" });
 });
+
+test("overview: an open room shows its safety card (area, exclude, threshold, language), built once per room", () => {
+  const ov = make("safety-overview-card", { zoom: false, exclude: ["binary_sensor.garage_co"], battery_threshold: 30, language: "fr" });
+  const room = ov._rooms.find((r) => r.id !== "_other") || ov._rooms[0];
+  ov._openArea = room.id;
+  ov._fillPanel();
+  const [el] = ov._details;
+  assert.equal(el._config.type, "custom:safety-card");
+  assert.equal(el._config.area ?? null, room.id === "_other" ? null : room.id);
+  assert.deepEqual([...el._config.exclude], ["binary_sensor.garage_co"]);
+  assert.equal(el._config.battery_threshold, 30);
+  assert.equal(el._config.language, "fr");
+  ov._fillPanel();
+  assert.equal(ov._details[0], el, "the same room keeps its card");
+  ov._clearPanel();
+  assert.equal(ov._details.length, 0);
+});

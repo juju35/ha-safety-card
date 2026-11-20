@@ -14,6 +14,7 @@
 
 ### Maintenance
 - New browser test: state updates leave the cards' nodes and height alone, and a tile still opens its details once.
+- Tests: each source file is evaluated as its own script, so coverage is reported per file (shared code, safety card, overview card); new test of the overview's room details.
 
 ## 1.4.0 - 2026-11-18
 

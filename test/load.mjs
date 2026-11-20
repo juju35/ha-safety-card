@@ -1,6 +1,7 @@
 // Evaluates src/shared.js and the cards in a sandbox with minimal DOM stand-ins, the way scripts/build.mjs
 // concatenates them, and returns the names the tests need. No dependency, no browser.
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 const root = new URL("../src/", import.meta.url);
@@ -85,10 +86,13 @@ export const load = () => {
   sandbox.window = sandbox;
   const ctx = vm.createContext(sandbox);
   const cards = ["safety-card", "safety-overview-card"];
-  const code = [read("shared"), ...cards.map((c) => `{\n${read(c)}}\n`)].join("\n");
+  // One script per source file, named after it, so that coverage is reported per file; the cards' blocks see
+  // shared.js's top-level names (scripts of one context share their global lexical scope), as in the bundle.
+  // A card's block starts on the file's own first line, so that coverage lines match the source.
+  vm.runInContext(read("shared"), ctx, { filename: fileURLToPath(new URL("shared.js", root)) });
+  for (const c of cards) vm.runInContext(`{${read(c)}}\n`, ctx, { filename: fileURLToPath(new URL(`${c}.js`, root)) });
   return vm.runInContext(
-    `${code}
-    ({ RcCard, RC_I18N, SC_I18N, rcLang, scRead, scDetectors, scAlarmKind, customElements, window,
+    `({ RcCard, RC_I18N, SC_I18N, rcLang, scRead, scDetectors, scAlarmKind, customElements, window,
        cards: Object.fromEntries(${JSON.stringify([...cards, "safety-mini-card"])}.map((t) => [t, customElements.get(t)])) })`,
     ctx,
   );

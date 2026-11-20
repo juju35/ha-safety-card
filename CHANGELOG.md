@@ -5,6 +5,12 @@
 ### Features
 - Safety Mini Card visual editor: the **alarm banner** (`banner`) of its detail view can now be switched off there too, like on the full card.
 
+### Fixes
+- **The dashboard no longer jumps on state updates**: the cards were rewritten from scratch whenever one of their detectors changed (a battery level, a CO reading) — the banner's picture redrawn and its animations restarted, every tile replaced. They are now patched in place: only the changed texts and colours are written, the picture and tiles stay the same, and an update of an entity the card does not show changes nothing.
+
+### Maintenance
+- New browser test: state updates leave the cards' nodes and height alone, and a tile still opens its details once.
+
 ## 1.4.0 - 2026-11-18
 
 ### Features

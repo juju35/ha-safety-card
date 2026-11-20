@@ -3543,10 +3543,15 @@ const rcMini = (Base, tag, styles, { alertsOnly = false } = {}) =>
           </div>
         </ha-card>`,
       );
-      const root = this.shadowRoot;
-      rcBindNav(root.querySelector(".head"), nav);
-      const allOffBtn = root.querySelector(".st.action");
+      const allOffBtn = this.shadowRoot.querySelector(".st.action");
       if (rcOnce(allOffBtn, "allOff")) allOffBtn.addEventListener("click", (ev) => this._allOff(ev));
+      this._wireMini();
+    }
+
+    // After a patch of the compact view: the title's link, each chip's details (wired once), the status pill.
+    _wireMini() {
+      const root = this.shadowRoot;
+      rcBindNav(root.querySelector(".head"), this._config.navigation_path);
       for (const el of root.querySelectorAll(".r")) if (rcOnce(el, "chip")) el.addEventListener("click", () => rcMoreInfo(this, el.dataset.id));
       this._fitPill();
     }

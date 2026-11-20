@@ -416,10 +416,7 @@ class SafetyMiniCard extends rcMini(
         ${chips ? `<div class="rs">${chips}</div>` : ""}
       </ha-card>`,
     );
-    const root = this.shadowRoot;
-    rcBindNav(root.querySelector(".head"), c.navigation_path);
-    for (const el of root.querySelectorAll(".r")) if (rcOnce(el, "chip")) el.addEventListener("click", () => rcMoreInfo(this, el.dataset.id));
-    this._fitPill();
+    this._wireMini();
   }
 
   // On the banner, the zoom button sits at its top right corner.

@@ -160,7 +160,7 @@ type: custom:safety-overview-card
 | `layout` | `compact` \| `tiles` | `compact` | `tiles`: large tiles, the size of Home Assistant's Tile card |
 | `only_alerts` | boolean | `false` | Full card only: show only the detectors in alarm or needing a look (always the case in the mini card's compact view) |
 | `hide_when_clear` | boolean | `false` | Hide the card when every detector is fine |
-| `banner` | boolean | `true` | The alarm banner under the header (full card) |
+| `banner` | boolean | `true` | The alarm banner under the header (full card, and the mini card's detail view) |
 | `test_button` | boolean | `true` | The “Test all” button, when the detectors have a test button |
 | `blink` | boolean | `true` | Blink the alarmed detectors and pulse the badge |
 | `battery_threshold` | number | `20` | Battery level (%) under which a detector needs a look |

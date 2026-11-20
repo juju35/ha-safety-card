@@ -188,6 +188,16 @@ test("editors: defaults stay out of the YAML", () => {
   assert.deepEqual({ ...out }, { type: "custom:safety-card" });
 });
 
+test("mini card editor: the detail view's options (the alarm banner) are editable", () => {
+  const flat = (schema) => schema.flatMap((f) => (f.schema ? flat(f.schema) : [f]));
+  const ed = new (sc.customElements.get("safety-mini-card-editor"))();
+  ed.appendChild = () => {};
+  ed.setConfig({ type: "custom:safety-mini-card" });
+  ed.hass = makeHass();
+  const names = flat(ed._form.schema).map((f) => f.name);
+  for (const n of ["banner", "test_button", "illustration", "zoom"]) assert.ok(names.includes(n), n);
+});
+
 test("translations: every language has every key of English, with the same placeholders", () => {
   const LANGS = ["en", "fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl", "ro", "da", "sv", "bg", "ru", "uk", "hu", "sk", "cs", "sl", "lv", "el"];
   const vars = (s) => s.match(/\{\w+\}/g)?.sort() ?? [];

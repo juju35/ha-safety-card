@@ -409,7 +409,7 @@ class SafetyMiniCard extends rcMini(
 const SafetyMiniCardEditor = rcEditor({
   card: SafetyMiniCard,
   helpers: [...SC_CARD_HELPERS, "zoom"],
-  schema: scSchema(SafetyMiniCard, ["show_title", "illustration", "hide_when_clear", "test_button", "blink", "zoom"]),
+  schema: scSchema(SafetyMiniCard, ["show_title", "illustration", "hide_when_clear", "banner", "test_button", "blink", "zoom"]),
 });
 
 rcRegister(

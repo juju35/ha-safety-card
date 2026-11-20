@@ -190,6 +190,77 @@ const rcUnzoom = (card) => {
   card._render();
 };
 
+// Patch a part of the shadow DOM in place from new HTML, instead of rewriting it: Home Assistant sends a new state
+// several times a second, and a rewrite replaced every node — the banner's picture redrawn and its animations
+// started over, the tile under the pointer or the keyboard focus replaced, and for a frame the browser laid out a
+// new tree, which moved the dashboard. Nodes whose tag is unchanged are kept and only the changed text and attributes
+// are written. Children carrying a data-key (else a data-id or data-area: the tiles, the chips, the rooms) are matched by it wherever they
+// moved; the others by position. A node marked data-rc-keep (added by the card after the HTML: the zoom button)
+// stays where it is.
+// The key carries the node's first class: a compact view's chip is never reused as the zoomed view's tile of the
+// same entity (each keeps its own listener).
+const rcKeyOf = (n) => {
+  const k = n.nodeType === 1 ? (n.getAttribute("data-key") ?? n.getAttribute("data-id") ?? n.getAttribute("data-area")) : null;
+  return k === null ? null : `${n.classList[0] || ""}:${k}`;
+};
+const rcKept = (n) => n.nodeType === 1 && n.hasAttribute("data-rc-keep");
+const rcPatchAttrs = (cur, next) => {
+  for (const { name } of [...cur.attributes]) if (!next.hasAttribute(name)) cur.removeAttribute(name);
+  for (const { name, value } of next.attributes) if (cur.getAttribute(name) !== value) cur.setAttribute(name, value);
+};
+const rcPlace = (parent, node, ref) => {
+  if (node === ref) return;
+  try {
+    // moveBefore (where supported) keeps the focus of a moved node.
+    if (parent.moveBefore && node.parentNode === parent) return parent.moveBefore(node, ref);
+  } catch (_e) {
+    /* fall back to insertBefore */
+  }
+  parent.insertBefore(node, ref);
+};
+const rcPatchChildren = (cur, next) => {
+  const old = [...cur.childNodes].filter((n) => !rcKept(n));
+  const fresh = [...next.childNodes];
+  const byKey = new Map();
+  for (const o of old) {
+    const k = rcKeyOf(o);
+    if (k !== null && !byKey.has(k)) byKey.set(k, o);
+  }
+  const used = new Set();
+  fresh.forEach((n, i) => {
+    const k = rcKeyOf(n);
+    let o = k !== null ? byKey.get(k) : old[i];
+    if (!o || o.nodeType !== n.nodeType || o.nodeName !== n.nodeName || used.has(o) || (k === null && rcKeyOf(o) !== null)) o = null;
+    const ref = cur.childNodes[i] ?? null;
+    if (!o) {
+      cur.insertBefore(n, ref);
+      return;
+    }
+    used.add(o);
+    rcPlace(cur, o, ref);
+    if (n.nodeType === 1) {
+      rcPatchAttrs(o, n);
+      rcPatchChildren(o, n);
+    } else if (o.nodeValue !== n.nodeValue) o.nodeValue = n.nodeValue;
+  });
+  for (const o of old) if (!used.has(o)) o.remove();
+};
+const rcMorph = (root, html) => {
+  const tpl = document.createElement("template");
+  tpl.innerHTML = html;
+  // Without a real DOM (the unit tests' stand-ins), the HTML is written as it is.
+  if (!tpl.content || !root.childNodes) root.innerHTML = html;
+  else rcPatchChildren(root, tpl.content);
+};
+// Wires `el` once: a node kept by rcMorph keeps its listeners, so they are not added again.
+const rcOnce = (el, key) => {
+  if (!el) return false;
+  const done = (el._rcBound ||= new Set());
+  if (done.has(key)) return false;
+  done.add(key);
+  return true;
+};
+
 // True for a click outside `card` that is not in a dialog opened from it (more-info, say): it folds the card back.
 const rcOutside = (card, ev) => !ev.composedPath().includes(card) && !rcInDialog(ev);
 
@@ -2854,9 +2925,13 @@ const rcNavigate = (path) => {
 
 // Wires a card header to its `navigation_path`: click, and Enter on the header itself.
 const rcBindNav = (head, path) => {
-  head.addEventListener("click", () => rcNavigate(path));
+  if (!head) return;
+  // Read at the click: a header kept across renders follows a new `navigation_path`.
+  head._rcNav = path;
+  if (!path || !rcOnce(head, "nav")) return;
+  head.addEventListener("click", () => head._rcNav && rcNavigate(head._rcNav));
   head.addEventListener("keydown", (ev) => {
-    if (ev.key === "Enter" && ev.target === head) rcNavigate(path);
+    if (ev.key === "Enter" && ev.target === head && head._rcNav) rcNavigate(head._rcNav);
   });
 };
 
@@ -3144,8 +3219,7 @@ class RcCard extends HTMLElement {
     // Every room idle with the "hide idle rooms" option: the header alone says it all.
     const idle = !rooms.length && this._total > 0;
     grid.hidden = idle;
-    if (idle) grid.innerHTML = "";
-    else grid.innerHTML = rooms.length ? rooms.map(tile).join("") : `<div class="empty">${rcEsc(this._t("no_rooms"))}</div>`;
+    rcMorph(grid, idle ? "" : rooms.length ? rooms.map(tile).join("") : `<div class="empty">${rcEsc(this._t("no_rooms"))}</div>`);
     if (this._openArea && !rooms.some((x) => x.id === this._openArea)) this._toggle(null);
     else if (this._openArea) this._fillPanel();
   }
@@ -3182,22 +3256,28 @@ class RcCard extends HTMLElement {
     const active = this._byPointer ? null : this.shadowRoot.activeElement;
     const focused = active?.dataset?.id;
     const focusKey = active?.dataset?.k;
-    this.shadowRoot.innerHTML = `
+    rcMorph(
+      this.shadowRoot,
+      `
       <style>${RC_BASE_STYLES}${this.constructor.styles}</style>
       <ha-card class="lvl-${level}${extraClass}${this._tiles() ? " layout-tiles" : ""}">
         ${head}
         ${tiles ? `<div class="grid" style="--cols:${this._cols()}">${tiles}</div>` : ""}
         ${this._afterGrid()}
-      </ha-card>`;
+      </ha-card>`,
+    );
     const root = this.shadowRoot;
-    root.querySelector(".pill.action")?.addEventListener("click", (ev) => this._allOff(ev));
-    if (this._config.navigation_path) rcBindNav(root.querySelector(".head"), this._config.navigation_path);
+    const allOff = root.querySelector(".pill.action");
+    if (rcOnce(allOff, "allOff")) allOff.addEventListener("click", (ev) => this._allOff(ev));
+    rcBindNav(root.querySelector(".head"), this._config.navigation_path);
     for (const el of root.querySelectorAll(".tile")) {
-      this._bindTile(el, (this._items || []).find((i) => i.id === el.dataset.id));
-      if (focused && el.dataset.id === focused) el.focus({ preventScroll: true });
+      if (rcOnce(el, "tile")) this._bindTile(el, (this._items || []).find((i) => i.id === el.dataset.id));
+      if (focused && el.dataset.id === focused && root.activeElement !== el) el.focus({ preventScroll: true });
     }
     this._bindAfter(root);
-    if (focusKey) root.querySelector(`[data-k="${focusKey}"]`)?.focus({ preventScroll: true });
+    const keyed = focusKey && root.querySelector(`[data-k="${focusKey}"]`);
+    if (keyed && root.activeElement !== keyed) keyed.focus({ preventScroll: true });
+    this._fitPill();
   }
 
   // What a card adds under its tiles (the Lights card's scenes), and its event wiring.
@@ -3429,7 +3509,9 @@ const rcMini = (Base, tag, styles, { alertsOnly = false } = {}) =>
       const st = allOff
         ? `<button class="st action" title="${rcEsc(this._t("turn_all_off"))}"><ha-icon icon="mdi:power"></ha-icon><span class="pt">${rcEsc(status)}</span></button>`
         : `<span class="st" title="${rcEsc(status)}"><span class="pt">${rcEsc(status)}</span></span>`;
-      this.shadowRoot.innerHTML = `
+      rcMorph(
+        this.shadowRoot,
+        `
         <style>${RC_BASE_STYLES}${this.constructor.styles}</style>
         <ha-card class="lvl-${level}${cls}">
           <div class="mini">
@@ -3442,11 +3524,13 @@ const rcMini = (Base, tag, styles, { alertsOnly = false } = {}) =>
               <div class="rs">${chips}</div>
             </div>
           </div>
-        </ha-card>`;
+        </ha-card>`,
+      );
       const root = this.shadowRoot;
-      if (nav) rcBindNav(root.querySelector(".head"), nav);
-      root.querySelector(".st.action")?.addEventListener("click", (ev) => this._allOff(ev));
-      for (const el of root.querySelectorAll(".r")) el.addEventListener("click", () => rcMoreInfo(this, el.dataset.id));
+      rcBindNav(root.querySelector(".head"), nav);
+      const allOffBtn = root.querySelector(".st.action");
+      if (rcOnce(allOffBtn, "allOff")) allOffBtn.addEventListener("click", (ev) => this._allOff(ev));
+      for (const el of root.querySelectorAll(".r")) if (rcOnce(el, "chip")) el.addEventListener("click", () => rcMoreInfo(this, el.dataset.id));
     }
 
     // Zoom button at the end of the header, top right in both views, added once per render.
@@ -3454,13 +3538,25 @@ const rcMini = (Base, tag, styles, { alertsOnly = false } = {}) =>
     // keyboard focus (Enter / Space: no click count) on the button that replaced this one.
     _addZoom() {
       const head = this._config.zoom && this._zoomHost();
-      if (!head || head.querySelector(".zoom")) return;
-      const button = document.createElement("button");
-      button.className = "zoom";
-      button.title = this._t(this._zoomed ? "zoom_out" : "zoom_in");
-      button.innerHTML = `<ha-icon icon="${rcZoomIcon(this)}"></ha-icon>`;
-      button.addEventListener("click", (ev) => rcZoomClick(this, ev));
-      head.appendChild(button);
+      // Kept across renders (data-rc-keep): only its icon and tooltip follow the view. A stray one (the header it
+      // belonged to replaced, the zoom switched off) is dropped.
+      const host = head || null;
+      for (const b of this.shadowRoot.querySelectorAll("[data-rc-keep].zoom")) if (b.parentNode !== host) b.remove();
+      if (!head) return;
+      let button = head.querySelector(":scope > .zoom");
+      if (!button) {
+        button = document.createElement("button");
+        button.className = "zoom";
+        button.setAttribute?.("data-rc-keep", "");
+        button.addEventListener("click", (ev) => rcZoomClick(this, ev));
+        head.appendChild(button);
+      }
+      const title = this._t(this._zoomed ? "zoom_out" : "zoom_in");
+      if (button.title !== title) button.title = title;
+      if (button._rcIcon !== rcZoomIcon(this)) {
+        button._rcIcon = rcZoomIcon(this);
+        button.innerHTML = `<ha-icon icon="${button._rcIcon}"></ha-icon>`;
+      }
     }
 
     // Where the zoom button goes: the end of the header (a card may pick another spot, its illustrated banner).

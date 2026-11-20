@@ -133,14 +133,15 @@ class SafetyOverviewCard extends rcRoomsPanel(RcCard) {
     const card = this.shadowRoot.querySelector("ha-card");
     card.className = `lvl-${level}${this._illustrated() ? " ill" : ""}`;
     const title = c.title || this._t("title");
-    card.querySelector(".top").innerHTML = this._illustrated()
+    rcMorph(card.querySelector(".top"), this._illustrated()
       ? this._hero({ level, top, alarms, icon, status, title, chips: headChips })
       : `<div class="head">
       <div class="badge"><ha-icon icon="${icon}"></ha-icon></div>
       <div class="title">${rcEsc(title)}</div>
       ${headChips ? `<div class="hchips">${headChips}</div>` : ""}
       <div class="pill" title="${rcEsc(status)}"><span class="pt">${rcEsc(status)}</span></div>
-      ${all.length ? rcZoomButton(this) : ""}</div>`;
+      ${all.length ? rcZoomButton(this) : ""}</div>`);
+    this._fitPill();
 
     // A room tile: its name and state, then one chip per detector, tinted by its state.
     this._roomGrid(card.querySelector(".grid"), rooms, (x) => {

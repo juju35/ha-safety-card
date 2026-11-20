@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.0 - 2026-11-20
+
+### Features
+- Safety Mini Card visual editor: the **alarm banner** (`banner`) of its detail view can now be switched off there too, like on the full card.
+
 ## 1.4.0 - 2026-11-18
 
 ### Features

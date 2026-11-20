@@ -9,6 +9,7 @@
 - **The dashboard no longer jumps on state updates**: the cards were rewritten from scratch whenever one of their detectors changed (a battery level, a CO reading) — the banner's picture redrawn and its animations restarted, every tile replaced. They are now patched in place: only the changed texts and colours are written, the picture and tiles stay the same, and an update of an entity the card does not show changes nothing.
 - The status pill is placed again once Home Assistant's card frame has rendered: measured in a still-empty frame, it went to a line of its own after each rewrite (the mini card jumped between 72 and 100 px) and, after the first display, could stay on the wrong line until the next update.
 
+- Safety card: excluding one alarm sensor of a combined detector (`exclude`) now leaves the whole detector out, as on the overview card (a sensor of it listed in `include` brings it back); it used to keep the detector with its other sensors.
 - Safety Mini Card: half a section wide (6 columns) by default, like the other ha-* mini cards; it still takes the full card's width once zoomed in.
 
 ### Maintenance

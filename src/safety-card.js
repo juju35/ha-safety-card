@@ -94,7 +94,11 @@ class SafetyCard extends RcCard {
     const c = this._config;
     const entries = this._entries();
     const names = new Map(entries.filter((e) => e.name).map((e) => [e.entity, e]));
-    const dets = scDetectors(this, entries.map((e) => e.entity));
+    // As on the overview card: excluding one alarm sensor of a combined detector leaves the whole detector out
+    // (unless one of its sensors is listed in `include` or `entities`).
+    const listed = new Set([...(c.include || []), ...(c.entities || [])].map((e) => (typeof e === "string" ? e : e?.entity)));
+    const excludedDevices = new Set((c.exclude || []).map((id) => h.entities?.[id]?.device_id).filter(Boolean));
+    const dets = scDetectors(this, entries.map((e) => e.entity)).filter((d) => !excludedDevices.has(d.device) || d.alarms.some((a) => listed.has(a.id)));
     const perArea = {};
     for (const d of dets) perArea[d.area] = (perArea[d.area] || 0) + 1;
     const rank = { alert: 2, warn: 1, ok: 0 };

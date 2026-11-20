@@ -165,7 +165,7 @@ type: custom:safety-overview-card
 | `blink` | boolean | `true` | Blink the alarmed detectors and pulse the badge |
 | `battery_threshold` | number | `20` | Battery level (%) under which a detector needs a look |
 | `include` | list | | Detectors to add (from another room, or with no room) |
-| `exclude` | list | | Detectors to leave out |
+| `exclude` | list | | Detectors to leave out (excluding one alarm sensor of a combined detector leaves the whole detector out) |
 | `entities` | list | | Advanced (YAML): replaces the discovery; entity IDs of alarm sensors, or `{entity, name, icon}` |
 | `language` | string | Home Assistant's | Advanced: one of the [languages](#translations) |
 | `zoom` | boolean | `true` | Mini card only: the zoom button |

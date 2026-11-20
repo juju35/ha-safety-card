@@ -414,6 +414,16 @@ for (const flag of ["preview", "editMode"]) {
   });
 }
 
+test("safety card: excluding one alarm sensor of a combined detector leaves the whole detector out, as on the overview", () => {
+  const all = html(make("safety-card", {}));
+  assert.match(all, /data-id="binary_sensor\.kitchen_smoke"/);
+  const out = html(make("safety-card", { exclude: ["binary_sensor.kitchen_smoke"] }));
+  assert.doesNotMatch(out, /data-id="binary_sensor\.kitchen_(smoke|gas)"/);
+  // A sensor of that detector listed in `include` brings it back.
+  const back = html(make("safety-card", { exclude: ["binary_sensor.kitchen_smoke"], include: ["binary_sensor.kitchen_gas"] }));
+  assert.match(back, /data-id="binary_sensor\.kitchen_(smoke|gas)"/);
+});
+
 test("mini card: half a section wide (6 columns) like the other mini cards, the full card's width once zoomed", () => {
   const mini = make("safety-mini-card", {});
   assert.deepEqual({ ...mini.getGridOptions() }, { columns: 6, min_columns: 6, rows: "auto" });

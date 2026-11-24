@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { makeHass, st } from "./hass.mjs";
+import { sources } from "./source.mjs";
 
 let harness;
 try {
@@ -29,7 +30,7 @@ const open = async (width) => {
   return page;
 };
 
-const src = (name) => readFileSync(new URL(`../src/${name}.js`, import.meta.url), "utf8");
+const src = (name) => (sources[`${name}.js`] ?? readFileSync(new URL(`../src/${name}.js`, import.meta.url), "utf8"));
 const js = ["{", src("shared"), ...["safety-card", "safety-overview-card"].map((c) => `{\n${src(c)}}\n`), "}"].join("\n");
 
 const LONG = "Kitchen and dining room smoke";

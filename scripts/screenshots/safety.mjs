@@ -14,7 +14,8 @@ await shoot({ prefix: "safety", tag: "safety-card", shots: pair("tiles", { scene
 await shoot({
   prefix: "safety-mini",
   tag: "safety-mini-card",
-  shots: [...scenes, ...pair("zoom", { scene: "maintenance", zoom: true, open: ".zoom" })],
+  // The smoke alarm is shown by its GIF (animations.mjs), not a still.
+  shots: [...scenes.filter((s) => !s.file.startsWith("alarm")), ...pair("zoom", { scene: "maintenance", zoom: true, open: ".zoom" })],
   setup,
 });
 // The overview: the rooms needing a look, every room (detail button), a room unfolded, the smoke alarm, a water leak.

@@ -467,4 +467,3 @@ export class RcCard extends HTMLElement {
     });
   }
 }
-

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.4 - 2026-11-27
+
+### Fixes
+- Tiles have the 10 px corner radius shared by the ha-* cards.
+
+### Maintenance
+- Dead code inherited from the light cards removed (`hide_when_off`, `only_on`, the toggle base card): nothing changes for users.
+
 ## 1.5.3 - 2026-11-24
 
 ### Maintenance

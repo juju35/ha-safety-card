@@ -163,7 +163,7 @@ export class RcCard extends HTMLElement {
     else this._render();
   }
 
-  // The tiles actually shown (`only_on` / `only_alerts` applied), nothing when the card is hidden.
+  // The tiles actually shown (`only_alerts` applied), nothing when the card is hidden.
   getCardSize() {
     if (this.hidden) return 0;
     const n = this._shown ?? this._items?.length ?? 0;
@@ -465,46 +465,5 @@ export class RcCard extends HTMLElement {
       onTap: () => !item?.unavailable && rcCall(this._hass, "homeassistant", "toggle", { entity_id: el.dataset.id }),
       onHold: () => rcMoreInfo(this, el.dataset.id),
     });
-  }
-}
-
-// Lights and plugs: entities that are on or off, a status counting the ones on, an optional "turn everything off".
-// Subclasses set `static headIcons` ([on, off]) and `static emptyKey`, and implement `_sigOf(item)` (what a tile
-// shows) and `_tileOf(item)`; `_statusExtra(lit)` adds to the status.
-export class RcToggleCard extends RcCard {
-  _statusExtra() {
-    return "";
-  }
-
-  // What the header shows, on the full card and the mini card: level, icon, status (`ofTotal`: *2/5 on*) and whether
-  // the "turn everything off" button is there. Null when nothing changed, or when the card hides itself.
-  _summary(items, ofTotal = false) {
-    const c = this._config;
-    const lit = items.filter((i) => i.on);
-    const level = lit.length ? "on" : "off";
-    if (!this._changed([ofTotal, items.map((i) => this._sigOf(i))])) return null;
-    if (this._hide(c.hide_when_off && level === "off")) return null;
-
-    const shown = c.only_on ? items.filter((i) => i.on || i.unavailable) : items;
-    this._shown = shown.length;
-    const [onIcon, offIcon] = this.constructor.headIcons;
-    const n = ofTotal ? `${lit.length}/${items.length}` : lit.length;
-    const status = lit.length
-      ? this._t(rcPluralKey(this.constructor.i18n, this._lang(), "on", lit.length), { n })
-      : this._t(items.length ? "all_off" : this.constructor.emptyKey);
-    return {
-      level,
-      shown,
-      icon: lit.length ? onIcon : offIcon,
-      status: status + this._statusExtra(lit),
-      allOff: c.all_off_button && lit.length > 0,
-    };
-  }
-
-  _draw(items) {
-    const s = this._summary(items);
-    if (!s) return;
-    const head = this._head({ ...s, title: this._config.title || this._areaName() || this._t("title") });
-    this._paint(s.level, head, s.shown.map((i) => this._tileOf(i)).join(""));
   }
 }
